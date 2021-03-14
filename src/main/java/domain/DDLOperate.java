@@ -1,36 +1,42 @@
 package domain;
 
+import BTree.BTree;
 import Constant.TableConstant;
 import Infrastructure.Entity.CreateEntity;
 
 import Infrastructure.Entity.OperateResult;
+import Infrastructure.Entity.ResultCode;
 import Infrastructure.Enum.ColumnTypeEnums;
+import Infrastructure.TableInfo.TableInfo;
+
+import java.util.HashMap;
 
 public class DDLOperate {
+
+    private CheckOperate checkOperate = new CheckOperate();
+
     /**
-     * 是否存在对应名称的表
-     * @param tableName
+     * 创建表
+     * @param createEntity
      * @return
      */
-    public boolean ifTableExists(String tableName){
-        return TableConstant.tableMap.containsKey(tableName);
-    }
     public  OperateResult createTable(CreateEntity createEntity){
+        OperateResult rtn = OperateResult.ok("建表成功");
         String tableName = createEntity.getTableName();
         //判断是否已存在
-        if (ifTableExists(tableName)){
-            return OperateResult.error("表已存在");
+        if (checkOperate.ifTableExists(createEntity.getTableName())){
+            rtn = OperateResult.error("表已存在");
+            return rtn;
         }
         //判断规则是否合法
-        if (ifRulesLegal(createEntity).code == 1)
+        rtn = checkOperate.ifRulesLegal(createEntity);
+        if (ResultCode.ok != rtn.code){
+            return rtn;
+        }
+        TableInfo newTable = new TableInfo(new BTree(),new HashMap<>());
+        TableConstant.tableMap.put(tableName,newTable);
+        return rtn;
+
     }
 
-    public OperateResult ifRulesLegal(CreateEntity createEntity){
-        for (String type : createEntity.getRules().keySet()){
-            if (!ColumnTypeEnums.ifContains(type)){
-                return OperateResult.error("创建关键字不存在");
-            }
-        }
-        return OperateResult.ok("关键词合法");
-    }
 }
