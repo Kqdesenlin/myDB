@@ -1,11 +1,16 @@
 package domain;
 
+import Constant.TableConstant;
+
 import java.util.List;
 
 public class operatMapService {
-    public List<T> selectSingleTable(String tableName, List<String> selectItmes){
-        String a = "1";
-        int i = Integer.valueOf(a);
+    public List<Object> selectSingleTable(String tableName, List<String> selectItmes){
 
+
+    }
+
+    public boolean insert(String table, List<String> insertItems){
+        TableConstant.tableMap
     }
 }
