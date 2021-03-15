@@ -11,4 +11,8 @@ public enum ResultCode {
         this.resultState = state;
         this.resultCode = code;
     }
+
+    public int getResultCode(){
+        return this.resultCode;
+    }
 }
