@@ -5,9 +5,7 @@ package BTree;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * @author xumg
@@ -304,5 +302,23 @@ public class BTree<K,V> {
                 }
             }
         }
+    }
+
+    public List<Entry<K,V>> iterate() {
+        List<Entry<K, V>> list = new ArrayList<Entry<K, V>>();
+        Queue<Node<K, V>> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            Node<K, V> node = queue.poll();
+            for (int i = 0; i < node.getSize(); i++) {
+                list.add(node.getEntrys().get(i));
+            }
+            if (!node.isLeaf()) {
+                for (int i = 0; i < node.getChildren().size(); ++i) {
+                    queue.offer(node.childAt(i));
+                }
+            }
+        }
+        return list;
     }
 }

@@ -5,6 +5,7 @@ import Constant.TableConstant;
 import Infrastructure.Entity.InsertEntity;
 import Infrastructure.Entity.OperateResult;
 import Infrastructure.Entity.ResultCode;
+import Infrastructure.Entity.SelectEntity;
 import Infrastructure.Service.TypeConverUtils;
 import Infrastructure.TableInfo.TableInfo;
 
@@ -13,7 +14,11 @@ import java.util.List;
 public class DMLOperate {
 
     private CheckOperate checkOperate = new CheckOperate();
-    public List<Object> selectSingleTable(String tableName, List<String> selectItmes){
+    public List<Object> selectSingleTable(SelectEntity selectEntity){
+        String tableName = selectEntity.getTableName();
+        if (!checkOperate.ifTableExists(tableName)){
+            return
+        }
         return null;
     }
 
