@@ -5,6 +5,7 @@ import Infrastructure.Entity.CreateEntity;
 import Infrastructure.Entity.InsertEntity;
 import Infrastructure.Entity.OperateResult;
 import Infrastructure.Enum.ColumnTypeEnums;
+import Infrastructure.Service.TypeConverUtils;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -43,7 +44,9 @@ public class CheckOperate {
      */
     public OperateResult ifInsertItemsLegal(InsertEntity insertEntity){
         Map<String,String> insertItems = insertEntity.getItems();
-        for (Map.Entry<String,String> entry : insertItems.entrySet()){
+        String tableName = insertEntity.getTableName();
+        Map<String,String> insertValAndName = TypeConverUtils.valAndNameConvertToValAndType(insertItems,tableName);
+        for (Map.Entry<String,String> entry : insertValAndName.entrySet()){
             ColumnTypeEnums columnTypeEnums = ColumnTypeEnums.findType(entry.getKey());
             if (ColumnTypeEnums.Known.equals(columnTypeEnums)){
                 return OperateResult.error("插入关键字 " + entry.getKey() + " 不存在");
