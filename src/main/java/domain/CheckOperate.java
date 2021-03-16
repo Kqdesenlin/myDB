@@ -46,7 +46,7 @@ public class CheckOperate {
         for (Map.Entry<String,String> entry : insertItems.entrySet()){
             ColumnTypeEnums columnTypeEnums = ColumnTypeEnums.findType(entry.getKey());
             if (ColumnTypeEnums.Known.equals(columnTypeEnums)){
-                return OperateResult.error("创建关键字不存在");
+                return OperateResult.error("插入关键字 " + entry.getKey() + " 不存在");
             }
             if (!checkColumnType(columnTypeEnums,entry.getValue())){
                 return OperateResult.error("参数不符合规范");

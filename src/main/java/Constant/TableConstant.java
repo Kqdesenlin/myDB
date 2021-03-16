@@ -14,6 +14,7 @@ import java.util.Map;
 public class TableConstant {
     public static Map<String, TableInfo> tableMap = new HashMap<String, TableInfo>();
 
+    public static final String primaryKey = "PRIMARYKEY";
     public static TableInfo getTableByName(String name){
         return tableMap.get(name);
     }
