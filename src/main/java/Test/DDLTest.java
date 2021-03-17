@@ -12,9 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class DDLTest {
     public static String tableName = "test_t";
+    Logger log = Logger.getLogger("log_ddl");
+
     public static void main(String[] args)throws Exception{
         if (!createTable()){
             return;
@@ -98,7 +101,7 @@ public class DDLTest {
         System.out.println("");
         for (List<String> row : filtedItems){
             for(String item : row){
-                System.out.println(item + " ");
+                System.out.print(item + " ");
             }
             System.out.println("");
         }

@@ -12,6 +12,7 @@ public class SelectResult{
     public ResultCode code;
     public List<String> rules;
     public List<List<String>> items;
+    public boolean ifContainPK = false;
 
     public SelectResult setRules(List<String> list){
         this.rules = list;
@@ -24,6 +25,16 @@ public class SelectResult{
 
     public SelectResult setItems(List<List<String>> list){
         this.items = list;
+        return this;
+    }
+
+    public SelectResult containPK(){
+        this.ifContainPK = true;
+        return this;
+    }
+
+    public SelectResult notContainPK(){
+        this.ifContainPK = false;
         return this;
     }
 

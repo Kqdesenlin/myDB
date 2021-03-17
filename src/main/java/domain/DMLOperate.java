@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +20,7 @@ public class DMLOperate {
 
     private CheckOperate checkOperate = new CheckOperate();
 
+    private static Logger logger = Logger.getLogger("log_dmlOperate");
 
     public SelectResult selectSingleTable(SelectEntity selectEntity){
         String tableName = selectEntity.getTableName();
@@ -27,13 +29,28 @@ public class DMLOperate {
         }
         //获取表
         TableInfo tableInfo = TableConstant.getTableByName(tableName);
+        List<String> tableRules = tableInfo.getRulesOrder();
         //全表扫描
         List<Entry<Integer,List<String>>> items = tableInfo.getBTree().iterate();
         long itemNumber = items.size();
         //where表达式筛选
-
+        logger.info("beforeFilter:" + items.toString());
         //selectItems筛选
         List<String> selectItems = selectEntity.getSelectItems();
+        items.forEach(entry -> {
+            List<String> entryValue = entry.getValue();
+            List<String> afterFilterItems = new ArrayList<>();
+            for (String selectItem : selectItems) {
+                for (int var2 = 0; var2 < tableRules.size(); var2++) {
+                    if (selectItem.equals(tableRules.get(var2))) {
+                        afterFilterItems.add(entryValue.get(var2));
+                        break;
+                    }
+                }
+            }
+            entry.setValue(afterFilterItems);
+        });
+        logger.info("afterFilter:" + items.toString());
         List<List<String>> filtedItems;
         //有主键选项，返回主键
         if (selectItems.contains(TableConstant.primaryKey)){
@@ -53,6 +70,7 @@ public class DMLOperate {
                         return (List<String>) new ArrayList<String>(entry.getValue());
                     }).collect(Collectors.toList());
         }
+
         return SelectResult.ok("查询成功").setRules(selectItems).setItems(filtedItems);
     }
 

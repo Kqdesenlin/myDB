@@ -8,6 +8,7 @@ import Infrastructure.Enum.ColumnTypeEnums;
 import Infrastructure.Service.TypeConverUtils;
 
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
@@ -19,6 +20,9 @@ public class CheckOperate {
      * @param tableName
      * @return
      */
+
+    private static Logger logger = Logger.getLogger("log_check");
+
     public boolean ifTableExists(String tableName){
         return TableConstant.tableMap.containsKey(tableName);
     }
@@ -42,17 +46,30 @@ public class CheckOperate {
      * @param insertEntity
      * @return
      */
+    /**
+     * 一个值具有三个属性，这一列(column)的对应的名字(name)
+     * ，这一列对应的类型(type)如string,int,double等
+     * ，这一列对应的值(value)具体的值如12345，abcd等
+     * 当一个数据插入的时候，插入的是name:value，首先是value必须包含在内，同时不能为key，应为value会重复
+     * 那么下一个key的选择只能在name和type之间，而一行多个列可以有重复的type，所以只能选择name作为key
+     * 则，插入的map为，name:value
+     * 而对其进行类型的校验时，首先需要吧name转换成type，之后才能对value进行校验
+     * 当name转换成type之后，会出现，type:value的情况，是多对多的情况，所以这里不能使用map进行存储
+     * @param insertEntity
+     * @return
+     */
     public OperateResult ifInsertItemsLegal(InsertEntity insertEntity){
         Map<String,String> insertItems = insertEntity.getItems();
         String tableName = insertEntity.getTableName();
-        Map<String,String> insertValAndName = TypeConverUtils.valAndNameConvertToValAndType(insertItems,tableName);
-        for (Map.Entry<String,String> entry : insertValAndName.entrySet()){
-            ColumnTypeEnums columnTypeEnums = ColumnTypeEnums.findType(entry.getKey());
+        Map<String,String> tableRules = TableConstant.getTableByName(tableName).getRules();
+        for (Map.Entry<String,String> entry : insertItems.entrySet()){
+            String rule = tableRules.get(entry.getKey());
+            ColumnTypeEnums columnTypeEnums = ColumnTypeEnums.findType(rule);
             if (ColumnTypeEnums.Known.equals(columnTypeEnums)){
-                return OperateResult.error("插入关键字 " + entry.getKey() + " 不存在");
+                return OperateResult.error("参数校验未通过," + "非法参数类型:" + rule);
             }
             if (!checkColumnType(columnTypeEnums,entry.getValue())){
-                return OperateResult.error("参数不符合规范");
+                return OperateResult.error("参数校验未通过," + "未匹配参数:" + entry.getValue());
             }
         }
         return OperateResult.ok("参数校验通过");
