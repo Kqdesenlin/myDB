@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @author xumg
@@ -14,6 +15,8 @@ import java.util.*;
 @Data
 @AllArgsConstructor
 public class BTree<K,V> {
+
+    Logger logger = Logger.getLogger("log_" + BTree.class.getName());
     //默认度数t为2
     private Integer DEAFULT_T=2;
 
@@ -98,6 +101,14 @@ public class BTree<K,V> {
         return delete(root ,en);
     }
 
+    /**
+     * 删除首先在根节点也就是root这个node中二分查找对应的entry，
+     * 如果没有在当前节点找到，则到子节点找，如果当前节点为叶子节点，
+     * 同时没有找到，则返回没有该节点，当在中间找到时，返回找到的节点
+     * @param root
+     * @param entry
+     * @return
+     */
     public Entry<K,V> delete(Node<K,V> root, Entry<K,V> entry){
         Result<V> result = root.search(entry.getKey());
         if(result.isExist()){
@@ -149,7 +160,8 @@ public class BTree<K,V> {
             //删除项不在本节点中,在其子节点中
             if(root.isLeaf()){
                 //如果该节点已经是叶子节点,则表明不在其中
-                System.out.println("所要删除数据不在本树中");
+                logger.info("删除失败，无法查找到需要删除节点");
+                return new Entry<K, V>();
             }
             Node<K,V> searchChild=root.childAt(result.getIndex());
             //获取所在子节点，判断数量大于t-1则递归删除
@@ -321,4 +333,13 @@ public class BTree<K,V> {
         }
         return list;
     }
+
+    public List<Entry<K,V>> complexIterate(){
+        return null;
+    }
+
+    public boolean checkEntry(){
+        return false;
+    }
+
 }

@@ -83,7 +83,7 @@ public class DDLTest {
         list.add("DoubleColumn");
         selectEntity.setSelectItems(list);
         DMLOperate dmlOperate = new DMLOperate();
-        SelectResult selectResult = dmlOperate.selectSingleTable(selectEntity);
+        SelectResult selectResult = dmlOperate.selectTotalTable(selectEntity);
         if (ResultCode.ok == selectResult.code){
             printSelectResult(selectResult);
             return true;

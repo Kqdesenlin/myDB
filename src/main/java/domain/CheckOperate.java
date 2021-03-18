@@ -7,6 +7,7 @@ import Infrastructure.Entity.OperateResult;
 import Infrastructure.Enum.ColumnTypeEnums;
 import Infrastructure.Service.TypeConverUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -73,6 +74,13 @@ public class CheckOperate {
             }
         }
         return OperateResult.ok("参数校验通过");
+    }
+
+    public OperateResult checkDeleteResultLegal(BTree.Entry<Integer, List<String>> deleteEntity){
+        if (null == deleteEntity.getKey()){
+            return OperateResult.error("删除校验未通过," + "无匹配删除值");
+        }
+        return OperateResult.ok("删除校验通过");
     }
 
     public boolean checkColumnType(ColumnTypeEnums columnTypeEnums,String insertItem){

@@ -6,10 +6,10 @@ package BTree;
  */
 public class Menu {
     public static void main(String[] args) {
-        BTree<Integer,Integer> tree=new BTree();
+        BTree<Integer,String> tree=new BTree();
         for(int i=0;i<15;i++){
 //            int ran=new Random().nextInt(10000);
-            Entry<Integer,Integer> en=new Entry<>(i,i);
+            Entry<Integer,String> en=new Entry<>(i,String.valueOf(i+"第" + i + "个节点"));
             tree.addNode(en);
         }
         System.out.println("----------------------");
@@ -20,6 +20,6 @@ public class Menu {
         System.out.println("----------------------");
         tree.delete(7);
         System.out.println("----------------------");
-        tree.delete(6);
+        tree.delete(20);
     }
 }

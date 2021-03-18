@@ -22,7 +22,7 @@ public class DMLOperate {
 
     private static Logger logger = Logger.getLogger("log_dmlOperate");
 
-    public SelectResult selectSingleTable(SelectEntity selectEntity){
+    public SelectResult selectTotalTable(SelectEntity selectEntity){
         String tableName = selectEntity.getTableName();
         if (!checkOperate.ifTableExists(tableName)){
             return SelectResult.error("查找表不存在");
@@ -74,6 +74,21 @@ public class DMLOperate {
         return SelectResult.ok("查询成功").setRules(selectItems).setItems(filtedItems);
     }
 
+    /**
+     * 带条件的复杂查询
+     * @param complexSelectEntity
+     * @return
+     */
+    public SelectResult complexSelectTotalTable(ComplexSelectEntity complexSelectEntity){
+        String tableName = complexSelectEntity.getTableName();
+        if (!checkOperate.ifTableExists(tableName)){
+            return SelectResult.error("查找表不存在");
+        }
+        TableInfo tableInfo = TableConstant.getTableByName(tableName);
+
+        return null;
+    }
+
 
     public OperateResult insert(InsertEntity insertEntity) {
         OperateResult operateResult = OperateResult.ok("插入成功");
@@ -95,5 +110,29 @@ public class DMLOperate {
         Entry<Integer,List<String>> insertEntry = new Entry<Integer,List<String>>(primaryKey,insertItems);
         tableInfo.getBTree().addNode(insertEntry);
         return OperateResult.ok("插入成功");
+    }
+
+    public OperateResult delete(DeleteEntity deleteEntity){
+        //有主键删除
+        if (deleteEntity.isIfContainPK()){
+            return deleteByPK(deleteEntity);
+        }else{
+
+        }
+        return null;
+        //无主键删除
+    }
+
+    public OperateResult deleteByPK(DeleteEntity deleteEntity){
+        String tableName = deleteEntity.getTableName();
+        Integer pk = Integer.valueOf(deleteEntity.getDeleteRules().get(TableConstant.primaryKey));
+        TableInfo tableInfo = TableConstant.getTableByName(tableName);
+        BTree.Entry<Integer,List<String>> deleteEntry = tableInfo.getBTree().delete(pk);
+        return checkOperate.checkDeleteResultLegal(deleteEntry);
+    }
+
+    public OperateResult deleteByRules(DeleteEntity deleteEntity){
+        String tableName = deleteEntity.getTableName();
+        return null;
     }
 }
