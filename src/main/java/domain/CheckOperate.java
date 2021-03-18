@@ -83,6 +83,8 @@ public class CheckOperate {
         return OperateResult.ok("删除校验通过");
     }
 
+
+
     public boolean checkColumnType(ColumnTypeEnums columnTypeEnums,String insertItem){
         boolean flag = true;
         switch (columnTypeEnums){

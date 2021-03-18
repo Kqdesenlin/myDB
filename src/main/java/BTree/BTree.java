@@ -2,6 +2,7 @@ package BTree;
 
 
 
+import Infrastructure.Entity.ComplexSelectEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -334,7 +335,12 @@ public class BTree<K,V> {
         return list;
     }
 
-    public List<Entry<K,V>> complexIterate(){
+    public List<Entry<K,V>> complexIterate(ComplexSelectEntity complexSelectEntity){
+        Queue<Node<Integer,List<String>>> queue = new LinkedList<Node<Integer, List<String>>>();
+        queue.offer((Node<Integer, List<String>>) root);
+        while (!queue.isEmpty()) {
+//            Node<Integer,List<String>>
+        }
         return null;
     }
 
