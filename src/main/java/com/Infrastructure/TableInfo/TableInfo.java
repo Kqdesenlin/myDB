@@ -1,6 +1,6 @@
-package Infrastructure.TableInfo;
+package com.Infrastructure.TableInfo;
 
-import BTree.BTree;
+import com.BTree.BTree;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

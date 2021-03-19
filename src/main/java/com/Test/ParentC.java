@@ -1,4 +1,4 @@
-package Test;
+package com.Test;
 
 public class ParentC {
 

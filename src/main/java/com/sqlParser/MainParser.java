@@ -1,4 +1,4 @@
-package sqlParser;
+package com.sqlParser;
 
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;

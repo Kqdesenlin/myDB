@@ -1,4 +1,4 @@
-package sqlParser;
+package com.sqlParser;
 import java.util.*;
 public class testParser {
     String s = "a";

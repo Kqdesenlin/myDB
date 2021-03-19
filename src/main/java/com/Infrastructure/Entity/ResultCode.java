@@ -1,4 +1,4 @@
-package Infrastructure.Entity;
+package com.Infrastructure.Entity;
 
 
 public enum ResultCode {

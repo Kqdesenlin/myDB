@@ -1,4 +1,4 @@
-package BTree;
+package com.BTree;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

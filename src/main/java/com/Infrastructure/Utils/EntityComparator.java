@@ -1,6 +1,6 @@
-package Infrastructure.Utils;
+package com.Infrastructure.Utils;
 
-import BTree.Entry;
+import com.BTree.Entry;
 
 import java.util.Comparator;
 import java.util.List;

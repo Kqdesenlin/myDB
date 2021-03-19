@@ -1,7 +1,7 @@
-package Infrastructure.Service;
+package com.Infrastructure.Service;
 
-import Constant.TableConstant;
-import Infrastructure.TableInfo.TableInfo;
+import com.Constant.TableConstant;
+import com.Infrastructure.TableInfo.TableInfo;
 
 import java.util.ArrayList;
 import java.util.List;

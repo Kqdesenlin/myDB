@@ -1,12 +1,12 @@
-package domain;
+package com.domain;
 
-import BTree.Entry;
-import Constant.TableConstant;
-import Infrastructure.Entity.*;
-import Infrastructure.Service.TypeConverUtils;
-import Infrastructure.TableInfo.TableInfo;
-import Infrastructure.Utils.EntityComparator;
-
+import com.BTree.BTree;
+import com.BTree.Entry;
+import com.Constant.TableConstant;
+import com.Infrastructure.Entity.*;
+import com.Infrastructure.Service.TypeConverUtils;
+import com.Infrastructure.TableInfo.TableInfo;
+import com.Infrastructure.Utils.EntityComparator;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,7 +31,7 @@ public class DMLOperate {
         TableInfo tableInfo = TableConstant.getTableByName(tableName);
         List<String> tableRules = tableInfo.getRulesOrder();
         //全表扫描
-        List<Entry<Integer,List<String>>> items = tableInfo.getBTree().iterate();
+        List<Entry<Integer,List<String>>> items = tableInfo.getBTree().breathFirstSearch();
         long itemNumber = items.size();
         //where表达式筛选
         logger.info("beforeFilter:" + items.toString());
@@ -99,7 +99,7 @@ public class DMLOperate {
 
         operateResult = checkOperate.ifInsertItemsLegal(insertEntity);
         if(ResultCode.ok.getResultCode()
-                != operateResult.code.getResultCode()){
+                != operateResult.getCode().getResultCode()){
             return operateResult;
         }
 
@@ -127,7 +127,7 @@ public class DMLOperate {
         String tableName = deleteEntity.getTableName();
         Integer pk = Integer.valueOf(deleteEntity.getDeleteRules().get(TableConstant.primaryKey));
         TableInfo tableInfo = TableConstant.getTableByName(tableName);
-        BTree.Entry<Integer,List<String>> deleteEntry = tableInfo.getBTree().delete(pk);
+        Entry<Integer,List<String>> deleteEntry = tableInfo.getBTree().delete(pk);
         return checkOperate.checkDeleteResultLegal(deleteEntry);
     }
 

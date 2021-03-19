@@ -1,13 +1,13 @@
-package domain;
+package com.domain;
 
-import BTree.BTree;
-import Constant.TableConstant;
-import Infrastructure.Entity.CreateEntity;
+import com.BTree.BTree;
+import com.Constant.TableConstant;
+import com.Infrastructure.Entity.CreateEntity;
 
-import Infrastructure.Entity.OperateResult;
-import Infrastructure.Entity.ResultCode;
-import Infrastructure.Enum.ColumnTypeEnums;
-import Infrastructure.TableInfo.TableInfo;
+import com.Infrastructure.Entity.OperateResult;
+import com.Infrastructure.Entity.ResultCode;
+import com.Infrastructure.Enum.ColumnTypeEnums;
+import com.Infrastructure.TableInfo.TableInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,13 +34,17 @@ public class DDLOperate {
         }
         //判断规则是否合法
         rtn = checkOperate.ifRulesLegal(createEntity);
-        if (ResultCode.ok != rtn.code){
+        if (ResultCode.ok != rtn.getCode()){
             return rtn;
         }
         List<String> rulesOrder = new ArrayList<>(tableRules.keySet());
         TableInfo newTable = new TableInfo(new BTree<Integer,List<String>>(),tableRules,rulesOrder);
         TableConstant.tableMap.put(tableName,newTable);
         return rtn;
+
+    }
+
+    public OperateResult createTempTable(){
 
     }
 

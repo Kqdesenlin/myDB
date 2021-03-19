@@ -1,11 +1,12 @@
-package domain;
+package com.domain;
 
-import Constant.TableConstant;
-import Infrastructure.Entity.CreateEntity;
-import Infrastructure.Entity.InsertEntity;
-import Infrastructure.Entity.OperateResult;
-import Infrastructure.Enum.ColumnTypeEnums;
-import Infrastructure.Service.TypeConverUtils;
+import com.Constant.TableConstant;
+import com.Infrastructure.Entity.CreateEntity;
+import com.Infrastructure.Entity.InsertEntity;
+import com.Infrastructure.Entity.OperateResult;
+import com.Infrastructure.Enum.ColumnTypeEnums;
+import com.BTree.Entry;
+import com.Infrastructure.Service.TypeConverUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class CheckOperate {
         return OperateResult.ok("参数校验通过");
     }
 
-    public OperateResult checkDeleteResultLegal(BTree.Entry<Integer, List<String>> deleteEntity){
+    public OperateResult checkDeleteResultLegal(Entry<Integer, List<String>> deleteEntity){
         if (null == deleteEntity.getKey()){
             return OperateResult.error("删除校验未通过," + "无匹配删除值");
         }

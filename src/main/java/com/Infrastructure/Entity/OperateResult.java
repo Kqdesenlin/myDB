@@ -1,4 +1,4 @@
-package Infrastructure.Entity;
+package com.Infrastructure.Entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,15 +6,30 @@ import lombok.Data;
 /**
  * 操作返回结果
  */
+@Data
 @AllArgsConstructor
 public class OperateResult {
-    public String info;
-    public ResultCode code;
+    //返回信息
+    private String info;
+    //判断是否成功的代码
+    private ResultCode code;
+    //额外需要返回的信息
+    private String rtn;
+
+    public static OperateResult ok(String info){
+        return new OperateResult(info,ResultCode.ok,null);
+    }
+
+    public static OperateResult ok(String info,String rtn) {
+        return new OperateResult(info,ResultCode.ok,rtn);
+    }
 
     public static OperateResult error(String info){
-        return new OperateResult(info,ResultCode.error);
+        return new OperateResult(info,ResultCode.error,null);
     }
-    public static OperateResult ok(String info){
-        return new OperateResult(info,ResultCode.ok);
+
+    public static OperateResult error(String info,String rtn) {
+        return new OperateResult(info,ResultCode.error,rtn);
     }
+
 }

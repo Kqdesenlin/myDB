@@ -1,4 +1,4 @@
-package Infrastructure.Enum;
+package com.Infrastructure.Enum;
 
 public enum KeyWordEnums {
     ROWID;

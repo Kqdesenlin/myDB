@@ -1,6 +1,6 @@
-package Test;
+package com.Test;
 
-import domain.CheckOperate;
+import com.domain.CheckOperate;
 
 public class SonC extends ParentC{
 

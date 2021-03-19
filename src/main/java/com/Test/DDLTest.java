@@ -1,11 +1,11 @@
-package Test;
+package com.Test;
 
-import Constant.TableConstant;
-import Infrastructure.Entity.*;
-import Infrastructure.TableInfo.TableInfo;
+import com.Constant.TableConstant;
+import com.Infrastructure.Entity.*;
+import com.Infrastructure.TableInfo.TableInfo;
 import com.google.common.collect.Lists;
-import domain.DDLOperate;
-import domain.DMLOperate;
+import com.domain.DDLOperate;
+import com.domain.DMLOperate;
 import edu.emory.mathcs.backport.java.util.Arrays;
 
 import java.util.ArrayList;
@@ -43,8 +43,8 @@ public class DDLTest {
         createEntity.setRules(rules);
         DDLOperate ddlOperate = new DDLOperate();
         OperateResult operateResult = ddlOperate.createTable(createEntity);
-        System.out.println(operateResult.info);
-        if (operateResult.code == ResultCode.ok){
+        System.out.println(operateResult.getInfo());
+        if (operateResult.getCode() == ResultCode.ok){
             TableInfo tableInfo = TableConstant.tableMap.get(tableName);
             System.out.println("建表成功");
             System.out.println(tableInfo.toString());
@@ -66,11 +66,11 @@ public class DDLTest {
         insertEntity.setItems(map);
         DMLOperate dmlOperate = new DMLOperate();
         OperateResult operateResult = dmlOperate.insert(insertEntity);
-        if(ResultCode.ok == operateResult.code){
+        if(ResultCode.ok == operateResult.getCode()){
             System.out.println("插入成功");
             return true;
         }
-        System.out.println(operateResult.info);
+        System.out.println(operateResult.getInfo());
         return false;
     }
 

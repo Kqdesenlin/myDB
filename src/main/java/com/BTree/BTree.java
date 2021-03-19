@@ -1,8 +1,8 @@
-package BTree;
+package com.BTree;
 
 
 
-import Infrastructure.Entity.ComplexSelectEntity;
+import com.Infrastructure.Entity.ComplexSelectEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -317,7 +317,7 @@ public class BTree<K,V> {
         }
     }
 
-    public List<Entry<K,V>> iterate() {
+    public List<Entry<K,V>> breathFirstSearch() {
         List<Entry<K, V>> list = new ArrayList<Entry<K, V>>();
         Queue<Node<K, V>> queue = new LinkedList<>();
         queue.offer(root);
@@ -335,6 +335,18 @@ public class BTree<K,V> {
         return list;
     }
 
+    public List<Entry<K,V>> deepFirstSearch(){
+        List<Entry<K,V>> list = new ArrayList<>();
+        Queue<Node<K,V>> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            Node<K,V> node = queue.poll();
+            for (int i = 0; i<node.getSize(); i++) {
+
+            }
+        }
+    }
+
     public List<Entry<K,V>> complexIterate(ComplexSelectEntity complexSelectEntity){
         Queue<Node<Integer,List<String>>> queue = new LinkedList<Node<Integer, List<String>>>();
         queue.offer((Node<Integer, List<String>>) root);
@@ -342,10 +354,6 @@ public class BTree<K,V> {
 //            Node<Integer,List<String>>
         }
         return null;
-    }
-
-    public boolean checkEntry(){
-        return false;
     }
 
 }

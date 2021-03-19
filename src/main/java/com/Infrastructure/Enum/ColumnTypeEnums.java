@@ -1,4 +1,4 @@
-package Infrastructure.Enum;
+package com.Infrastructure.Enum;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
