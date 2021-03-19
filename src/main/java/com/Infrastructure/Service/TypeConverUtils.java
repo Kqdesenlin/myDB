@@ -1,7 +1,6 @@
 package com.Infrastructure.Service;
 
-import com.Constant.TableConstant;
-import com.Infrastructure.TableInfo.TableInfo;
+import com.domain.repository.TableConstant;
 
 import java.util.ArrayList;
 import java.util.List;

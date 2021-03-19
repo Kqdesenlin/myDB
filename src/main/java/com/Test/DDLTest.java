@@ -1,12 +1,13 @@
 package com.Test;
 
-import com.Constant.TableConstant;
-import com.Infrastructure.Entity.*;
+import com.domain.repository.TableConstant;
+import com.domain.Entity.*;
+import com.domain.Entity.result.OperateResult;
+import com.domain.Entity.result.ResultCode;
+import com.domain.Entity.result.SelectResult;
 import com.Infrastructure.TableInfo.TableInfo;
-import com.google.common.collect.Lists;
-import com.domain.DDLOperate;
-import com.domain.DMLOperate;
-import edu.emory.mathcs.backport.java.util.Arrays;
+import com.domain.event.DDLOperate;
+import com.domain.event.DMLOperate;
 
 import java.util.ArrayList;
 import java.util.HashMap;

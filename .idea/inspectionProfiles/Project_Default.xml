@@ -30,7 +30,7 @@
       <option name="IGNORE_JAVADOC_PERIOD" value="true" />
       <option name="IGNORE_DUPLICATED_THROWS" value="false" />
       <option name="IGNORE_POINT_TO_ITSELF" value="false" />
-      <option name="myAdditionalJavadocTags" value="date,author:,date:,description:解析select,description:启动类,description:登录控制,description:临时表信息" />
+      <option name="myAdditionalJavadocTags" value="date,author:,date:,description:解析select,description:启动类,description:登录控制,description:临时表信息,description:将sql的解析结果映射到domain的具体操作,description:,description:创建虚表实体" />
     </inspection_tool>
   </profile>
 </component>

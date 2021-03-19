@@ -1,6 +1,6 @@
 package com.Infrastructure.TableInfo;
 
-import com.BTree.BTree;
+import com.domain.Entity.bTree.BTree;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -25,11 +25,19 @@ public class TempTableInfo {
     //存放数据的属性的顺序
     List<String> ruleOrder;
     //驱动表(可选)
-    TableInfo driveTable;
+    String driveTable;
     //被驱动表(可选)
-    TableInfo drivenTable;
+    String drivenTable;
     //自增主键
     AtomicInteger primaryKey = new AtomicInteger(1);
 
 
+    public TempTableInfo(BTree<Integer, List<String>> bTree, Map<String, String> newRules, List<String> newTableRuleOrder, String driveTable, String drivenTable) {
+        this.bTree = bTree;
+        this.rules = newRules;
+        this.ruleOrder = newTableRuleOrder;
+        this.driveTable = driveTable;
+        this.drivenTable = drivenTable;
+
+    }
 }

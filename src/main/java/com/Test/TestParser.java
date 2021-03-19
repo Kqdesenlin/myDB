@@ -1,18 +1,7 @@
 package com.Test;
 
-import junit.framework.Test;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.delete.Delete;
-import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.update.Update;
-import com.sqlParser.MainParser;
-import com.sqlParser.SelectParser;
+import com.domain.event.sqlParser.SelectParser;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 public class TestParser {
@@ -42,6 +31,6 @@ public class TestParser {
 //        List<String> list = selectParser.getSelectTables("select * from (select id from website,accont where website.id = account.id) as nt1;");
         String sql = "select * from website where id = 1 or id =2;";
         logger.info(selectParser.getWhere(sql).toString());
-        Addition
+//        Addition
     }
 }

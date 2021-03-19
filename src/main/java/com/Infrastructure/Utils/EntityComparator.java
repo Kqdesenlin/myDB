@@ -1,6 +1,6 @@
 package com.Infrastructure.Utils;
 
-import com.BTree.Entry;
+import com.domain.Entity.bTree.Entry;
 
 import java.util.Comparator;
 import java.util.List;
