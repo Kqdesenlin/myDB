@@ -11,14 +11,12 @@ import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.update.Update;
-import net.sf.jsqlparser.util.TablesNamesFinder;
 
-import java.util.List;
 import java.util.logging.Logger;
 
-public class mainParser {
+public class MainParser {
 
-    private static Logger logger = Logger.getLogger("log_" + mainParser.class.getName());
+    private static Logger logger = Logger.getLogger("log_" + MainParser.class.getName());
 
     public void entrance(String sql){
         Statement statement = null;
@@ -27,20 +25,21 @@ public class mainParser {
         } catch (JSQLParserException e) {
             e.printStackTrace();
         }
+        logger.info(sql);
         if (statement instanceof Select){
-            logger.info("this sql is select");
+//            logger.info("this sql is select");
             selectParser((Select) statement);
         }
         if (statement instanceof Insert){
-            logger.info("this sql is insert");
+//            logger.info("this sql is insert");
             insertParser((Insert) statement);
         }
         if (statement instanceof Update){
-            logger.info("this sql is update");
+//            logger.info("this sql is update");
             updateParser((Update) statement);
         }
         if (statement instanceof Delete){
-            logger.info("this sql is delete");
+//            logger.info("this sql is delete");
             deleteParser((Delete) statement);
         }
 //    public void mainParsing(String sql)throws Exception{
@@ -79,7 +78,12 @@ public class mainParser {
     public void selectParser(Select select){
         PlainSelect plainSelect = (PlainSelect)select.getSelectBody();
         FromItem fromItem = plainSelect.getFromItem();
-        if (fromItem instanceof )
+
+        if (fromItem instanceof Table){
+            logger.info("this is table");
+        }else if (fromItem instanceof SubSelect){
+            logger.info("this is subselect");
+        }
     }
 
     /**
