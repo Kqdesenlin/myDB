@@ -1,8 +1,12 @@
 package com.domain.event;
 
+import com.Infrastructure.TableInfo.ColumnInfo;
 import com.domain.Entity.CreateTempEntity;
 import com.domain.Entity.bTree.BTree;
 import com.domain.Entity.bTree.Entry;
+import com.domain.Entity.createTable.ColumnInfoEntity;
+import com.domain.Entity.createTable.CreateTableEntity;
+import com.domain.Entity.createTable.TableInfoEntity;
 import com.domain.repository.TableConstant;
 import com.domain.Entity.CreateEntity;
 
@@ -12,6 +16,7 @@ import com.Infrastructure.TableInfo.TableInfo;
 import com.Infrastructure.TableInfo.TempTableInfo;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DDLOperate {
 
@@ -20,25 +25,29 @@ public class DDLOperate {
     private DMLOperate dmlOperate = new DMLOperate();
     /**
      * 创建表
-     * @param createEntity
+     * @param createTableEntity
      * @return
      */
-    public  OperateResult createTable(CreateEntity createEntity){
+    public  OperateResult createTable(CreateTableEntity createTableEntity){
         OperateResult rtn = OperateResult.ok("建表成功");
-        String tableName = createEntity.getTableName();
-        Map<String,String> tableRules = createEntity.getRules();
+        TableInfoEntity tableInfoEntity = createTableEntity.getTableInfo();
+        List<ColumnInfoEntity> columnInfoEntities = createTableEntity.getColumnInfo();
+        String tableName = tableInfoEntity.getTableName();
         //判断是否已存在
-        if (checkOperate.ifTableExists(createEntity.getTableName())){
+        if (checkOperate.ifTableExists(tableName)){
             rtn = OperateResult.error("表已存在");
             return rtn;
         }
         //判断规则是否合法
-        rtn = checkOperate.ifRulesLegal(createEntity);
+        rtn = checkOperate.ifCreateColumnLegal(columnInfoEntities);
         if (ResultCode.ok != rtn.getCode()){
             return rtn;
         }
-        List<String> rulesOrder = new ArrayList<>(tableRules.keySet());
-        TableInfo newTable = new TableInfo(new BTree<Integer,List<String>>(),tableRules,rulesOrder);
+        List<ColumnInfo> columnInfoList = (List<ColumnInfo>)rtn.getRtn();
+        List<String> rulesOrder = columnInfoList.stream()
+                .map(columnInfo -> columnInfo.getColumnName())
+                .collect(Collectors.toList());
+        TableInfo newTable = new TableInfo(new BTree<Integer,List<String>>(),columnInfoList,rulesOrder);
         TableConstant.tableMap.put(tableName,newTable);
         return rtn;
 

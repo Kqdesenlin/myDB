@@ -2,11 +2,11 @@ package com.domain.Entity.enums;
 
 
 public enum ColumnTypeEnums {
-    Int("Int","整型"),
-    Double("Double","浮点数"),
-    String("String","字符串"),
-    Char("Char","字符"),
-    Known("Known","未知");
+    Int("INT","整型"),
+    Double("DOUBLE","浮点数"),
+    VarChar("VARCHAR","变长字符串"),
+    Char("CHAR","定长字符串"),
+    UnKnown("UNKNOWN","未知");
 
     private final String key;
     private final String value;
@@ -31,7 +31,7 @@ public enum ColumnTypeEnums {
                 return columnTypeEnum;
             }
         }
-        return ColumnTypeEnums.Known;
+        return ColumnTypeEnums.UnKnown;
 
 //        return (ColumnTypeEnums) Arrays.asList(ColumnTypeEnums.values())
 //                .stream().filter((columnTypeEnum) -> columnTypeEnum)
@@ -40,7 +40,7 @@ public enum ColumnTypeEnums {
 
     public static boolean ifContains(String type){
         ColumnTypeEnums findEnum = findType(type);
-        if (findEnum.equals(ColumnTypeEnums.Known)){
+        if (findEnum.equals(ColumnTypeEnums.UnKnown)){
             return false;
         }
         return true;

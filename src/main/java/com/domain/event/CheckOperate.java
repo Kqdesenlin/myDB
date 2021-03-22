@@ -1,5 +1,10 @@
 package com.domain.event;
 
+import com.Infrastructure.TableInfo.ColumnInfo;
+import com.Infrastructure.TableInfo.TableInfo;
+import com.domain.Entity.createTable.ColumnInfoEntity;
+import com.domain.Entity.enums.ColumnSpecsEnums;
+import com.domain.Entity.enums.ColumnTypeLengthEnums;
 import com.domain.repository.TableConstant;
 import com.domain.Entity.CreateEntity;
 import com.domain.Entity.InsertEntity;
@@ -7,6 +12,7 @@ import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.enums.ColumnTypeEnums;
 import com.domain.Entity.bTree.Entry;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -29,17 +35,51 @@ public class CheckOperate {
     }
     /**
      * 判断建表规则是否合法
-     * @param createEntity
+     * @param
      * @return
      */
-    public OperateResult ifRulesLegal(CreateEntity createEntity){
-        for (Map.Entry<String,String> entry : createEntity.getRules().entrySet()){
-            String type = entry.getValue();
-            if (!ColumnTypeEnums.ifContains(type)){
-                return OperateResult.error("创建关键字 " + type + " 不存在");
+    public OperateResult ifCreateColumnLegal(List<ColumnInfoEntity> columnInfoEntities){
+        //校验的同时，把对象重新装配，在返回的时候添加进去，避免重新装配
+        List<ColumnInfo> columnInfoList = new ArrayList<>();
+        for (ColumnInfoEntity columnInfoEntity : columnInfoEntities) {
+            ColumnInfo columnInfo = new ColumnInfo();
+            columnInfo.setColumnName(columnInfoEntity.getColumnName());
+            //关键词的类型校验
+            String dataType = columnInfoEntity.getDataType();
+            if (!ColumnTypeEnums.ifContains(dataType)) {
+                return OperateResult.error("关键词校验未通过," + dataType + "不存在");
             }
+            columnInfo.setColumnType(dataType);
+            //关键词的参数校验，如varchar，char等
+            int arguments = Integer.parseInt(columnInfoEntity.getColumnArguments());
+            if (ColumnTypeLengthEnums.ifContains(dataType) && ColumnTypeLengthEnums.findType(dataType).getLength() < arguments) {
+                return OperateResult.error("关键词校验未通过," + dataType + "超过最大长度");
+            }
+            columnInfo.setColumnArgument(arguments);
+            //特殊条件，如not null,unique校验
+            List<String> dataSpecies = columnInfoEntity.getColumnSpecs();
+            for (int var1 = 0; var1<dataSpecies.size();var1++) {
+                String first = dataSpecies.get(var1);
+                ColumnSpecsEnums columnSpecsEnums = ColumnSpecsEnums.findTypeByFirst(first);
+                if (null == columnSpecsEnums) {
+                    return OperateResult.error("关键词校验未通过," + first + "未知条件");
+                }
+                int length = columnSpecsEnums.getLength();
+                if ((var1 + length)>dataSpecies.size()) {
+                    return OperateResult.error("关键词校验未通过," +first + "未知条件" );
+                }
+                StringBuilder sb = new StringBuilder();
+                for (int var2 = 0;var2<length;var2++) {
+                    sb.append(dataSpecies.get(var1+var2));
+                }
+                if (!columnSpecsEnums.getTotal().equals(sb.toString())) {
+                    return OperateResult.error("关键词校验未通过," + sb.toString() + "未知条件");
+                }
+                columnInfo.addSpecs(columnSpecsEnums);
+            }
+            columnInfoList.add(columnInfo);
         }
-        return OperateResult.ok("关键词校验通过");
+        return OperateResult.ok("关键词校验通过",columnInfoList);
     }
 
     /**

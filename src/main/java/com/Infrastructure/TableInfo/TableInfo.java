@@ -15,13 +15,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 @AllArgsConstructor
 public class TableInfo {
     BTree<Integer,List<String>> bTree;
-    Map<String,String> rules;
+    List<ColumnInfo> columnInfoList;
     List<String> rulesOrder;
     public AtomicInteger primaryKey = new AtomicInteger(1);
 
-    public TableInfo(BTree<Integer, List<String>> bTree, Map<String, String> tableRules, List<String> rulesOrder) {
+    public TableInfo(BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder) {
         this.bTree = bTree;
-        this.rules = tableRules;
+        this.columnInfoList = columnInfoList;
         this.rulesOrder = rulesOrder;
     }
 }
