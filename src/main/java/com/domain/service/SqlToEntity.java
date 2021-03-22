@@ -9,8 +9,16 @@ import com.domain.event.DMLOperate;
 import com.domain.event.sqlParser.SelectParser;
 import com.interfaces.dto.ResultDto;
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.delete.Delete;
+import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.update.Update;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author: zhangQY
@@ -19,15 +27,59 @@ import java.util.List;
  */
 public class SqlToEntity {
 
+    Logger logger = Logger.getLogger("log_" + SqlToEntity.class.getSimpleName());
+
     SelectParser selectParser = new SelectParser();
 
     DDLOperate ddlOperate = new DDLOperate();
 
     public ResultDto sqlMapToDML(String sql) throws JSQLParserException {
+        Statement statement = null;
+        try {
+            statement = CCJSqlParserUtil.parse(sql);
+        } catch (JSQLParserException e) {
+            e.printStackTrace();
+        }
+        logger.info(sql);
+        if (statement instanceof Select){
+            return sqlMapToSelect((Select) statement);
+        }
+        if (statement instanceof Insert){
+
+        }
+        if (statement instanceof Update){
+        }
+        if (statement instanceof Delete){
+        }
+        if (statement instanceof CreateTable) {
+            return sqlMapToCreateTable((CreateTable) statement);
+        }
         List<String> tableLists = selectParser.getSelectTables(sql);
         CreateTempEntity createTempEntity = PackToEntity.packFromToWhereToCreateTempEntity(tableLists);
         OperateResult operateResult = ddlOperate.createTempTable(createTempEntity);
 
         return PackToDto.ResultToDto(operateResult);
     }
+
+    public ResultDto sqlMapToCreateTable(CreateTable createTable) {
+
+        return null;
+    }
+
+    public ResultDto sqlMapToInsert() {
+        return null;
+    }
+
+    public ResultDto sqlMapToDelete() {
+        return null;
+    }
+
+    public ResultDto sqlMapToUpdate() {
+        return null;
+    }
+
+    public ResultDto sqlMapToSelect(Select select){
+        return null;
+    }
+
 }

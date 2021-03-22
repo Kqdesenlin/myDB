@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.*;
@@ -19,43 +20,6 @@ public class MainParser {
     private static Logger logger = Logger.getLogger("log_" + MainParser.class.getName());
 
     public void entrance(String sql){
-        Statement statement = null;
-        try {
-            statement = CCJSqlParserUtil.parse(sql);
-        } catch (JSQLParserException e) {
-            e.printStackTrace();
-        }
-        logger.info(sql);
-        if (statement instanceof Select){
-//            logger.info("this sql is select");
-            selectParser((Select) statement);
-        }
-        if (statement instanceof Insert){
-//            logger.info("this sql is insert");
-            insertParser((Insert) statement);
-        }
-        if (statement instanceof Update){
-//            logger.info("this sql is update");
-            updateParser((Update) statement);
-        }
-        if (statement instanceof Delete){
-//            logger.info("this sql is delete");
-            deleteParser((Delete) statement);
-        }
-//    public void mainParsing(String sql)throws Exception{
-//        Statement statement = CCJSqlParserUtil.parse(sql);
-
-//        Select selectStatement = (Select) statement;
-//
-//        //获取select和from之间的items
-//        List<SelectItem> selectItems = plainSelect.getSelectItems();
-//        System.out.println(selectItems.toString());
-//        //获取表名
-//        TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-//        List<String> tables = tablesNamesFinder.getTableList(selectStatement);
-//        System.out.println(tables.toString());
-//        Expression where = plainSelect.getWhere();
-//        whereJudge(where);
 
     }
 
