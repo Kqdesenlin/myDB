@@ -1,4 +1,4 @@
-package com.domain.Entity.createTable;
+package com.domain.Entity.common;
 
 import lombok.Data;
 

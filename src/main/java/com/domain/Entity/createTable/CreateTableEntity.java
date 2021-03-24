@@ -1,5 +1,7 @@
 package com.domain.Entity.createTable;
 
+import com.domain.Entity.common.ColumnInfoEntity;
+import com.domain.Entity.common.TableInfoEntity;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
  */
 @Data
 public class CreateTableEntity {
+
     TableInfoEntity tableInfo;
     List<ColumnInfoEntity> columnInfo;
 

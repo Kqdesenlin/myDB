@@ -90,24 +90,24 @@ public class DMLOperate {
 
 
     public OperateResult insert(InsertEntity insertEntity) {
-        OperateResult operateResult = OperateResult.ok("插入成功");
-        String tableName = insertEntity.getTableName();
-        if (!checkOperate.ifTableExists(tableName)){
-            return OperateResult.error("插入表不存在");
-        }
-
-        operateResult = checkOperate.ifInsertItemsLegal(insertEntity);
-        if(ResultCode.ok.getResultCode()
-                != operateResult.getCode().getResultCode()){
-            return operateResult;
-        }
-
-        TableInfo tableInfo = TableConstant.getTableByName(tableName);
-        List<String> insertItems = TypeConverUtils.mapToListByListOrder(
-                insertEntity.getItems(),tableInfo.getRulesOrder());
-        Integer primaryKey = tableInfo.primaryKey.getAndIncrement();
-        Entry<Integer,List<String>> insertEntry = new Entry<Integer,List<String>>(primaryKey,insertItems);
-        tableInfo.getBTree().addNode(insertEntry);
+//        OperateResult operateResult = OperateResult.ok("插入成功");
+//        String tableName = insertEntity.getTableInfoEntity().getTableName();
+//        if (!checkOperate.ifTableExists(tableName)){
+//            return OperateResult.error("插入表不存在");
+//        }
+//
+//        operateResult = checkOperate.ifInsertItemsLegal(insertEntity);
+//        if(ResultCode.ok.getResultCode()
+//                != operateResult.getCode().getResultCode()){
+//            return operateResult;
+//        }
+//
+//        TableInfo tableInfo = TableConstant.getTableByName(tableName);
+//        List<String> insertItems = TypeConverUtils.mapToListByListOrder(
+//                insertEntity,tableInfo.getRulesOrder());
+//        Integer primaryKey = tableInfo.primaryKey.getAndIncrement();
+//        Entry<Integer,List<String>> insertEntry = new Entry<Integer,List<String>>(primaryKey,insertItems);
+//        tableInfo.getBTree().addNode(insertEntry);
         return OperateResult.ok("插入成功");
     }
 

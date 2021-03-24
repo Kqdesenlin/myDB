@@ -1,12 +1,10 @@
 package com.domain.event;
 
 import com.Infrastructure.TableInfo.ColumnInfo;
-import com.Infrastructure.TableInfo.TableInfo;
-import com.domain.Entity.createTable.ColumnInfoEntity;
+import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.enums.ColumnSpecsEnums;
 import com.domain.Entity.enums.ColumnTypeLengthEnums;
 import com.domain.repository.TableConstant;
-import com.domain.Entity.CreateEntity;
 import com.domain.Entity.InsertEntity;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.enums.ColumnTypeEnums;
@@ -14,7 +12,6 @@ import com.domain.Entity.bTree.Entry;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -100,19 +97,19 @@ public class CheckOperate {
      * @return
      */
     public OperateResult ifInsertItemsLegal(InsertEntity insertEntity){
-        Map<String,String> insertItems = insertEntity.getItems();
-        String tableName = insertEntity.getTableName();
-        Map<String,String> tableRules = TableConstant.getTableByName(tableName).getRules();
-        for (Map.Entry<String,String> entry : insertItems.entrySet()){
-            String rule = tableRules.get(entry.getKey());
-            ColumnTypeEnums columnTypeEnums = ColumnTypeEnums.findType(rule);
-            if (ColumnTypeEnums.Known.equals(columnTypeEnums)){
-                return OperateResult.error("参数校验未通过," + "非法参数类型:" + rule);
-            }
-            if (!checkColumnType(columnTypeEnums,entry.getValue())){
-                return OperateResult.error("参数校验未通过," + "未匹配参数:" + entry.getValue());
-            }
-        }
+//        Map<String,String> insertItems = insertEntity.getItems();
+//        String tableName = insertEntity.getTableName();
+//        Map<String,String> tableRules = TableConstant.getTableByName(tableName).
+//        for (Map.Entry<String,String> entry : insertItems.entrySet()){
+//            String rule = tableRules.get(entry.getKey());
+//            ColumnTypeEnums columnTypeEnums = ColumnTypeEnums.findType(rule);
+//            if (ColumnTypeEnums.Known.equals(columnTypeEnums)){
+//                return OperateResult.error("参数校验未通过," + "非法参数类型:" + rule);
+//            }
+//            if (!checkColumnType(columnTypeEnums,entry.getValue())){
+//                return OperateResult.error("参数校验未通过," + "未匹配参数:" + entry.getValue());
+//            }
+//        }
         return OperateResult.ok("参数校验通过");
     }
 
@@ -137,7 +134,7 @@ public class CheckOperate {
             case Double:
                 flag = ifDouble(insertItem);
                 break;
-            case String:
+            case VarChar:
                 flag = ifString(insertItem);
                 break;
         }

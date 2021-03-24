@@ -12,7 +12,7 @@ public class PackToDto {
 
     public static ResultDto ResultToDto(OperateResult operateResult) {
         ResultDto resultDto = new ResultDto(operateResult.getInfo()
-                ,operateResult.getCode().getResultCode(),operateResult.getRtn());
+                ,operateResult.getCode().getResultCode(),operateResult.getRtn().toString());
         return resultDto;
     }
 }

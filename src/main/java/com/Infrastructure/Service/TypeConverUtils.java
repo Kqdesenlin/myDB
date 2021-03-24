@@ -47,7 +47,7 @@ public class TypeConverUtils {
      * @param tableName
      * @return
      */
-    public static Map<String, String> valAndNameConvertToValAndType(Map<String,String> insertItems,String tableName){
+    public static Map<String, String> valAndNameConvertToValAndType(Map<String,String> insertItems,String tableName) {
 
         logger.info("beforeConver:" + insertItems);
 //        for(Map.Entry<String,String> entry : insertItems.entrySet()){
@@ -59,15 +59,17 @@ public class TypeConverUtils {
 ////            }
 ////            String ruleName =
 //        }
-        Map<String,String> tableRules = TableConstant.getTableByName(tableName).getRules();
-        List<Map.Entry<String,String>> entryList = new ArrayList<>(insertItems.entrySet());
-        List<Map.Entry<String,String>> newEntryList = new ArrayList<>();
-        entryList.forEach(entry -> {
-            String ruleType = tableRules.get(entry.getKey());
-
-        });
-
-        return entryList.stream().collect(Collectors.toMap
-                (Map.Entry<String,String>::getKey,Map.Entry<String,String>::getValue));
+//        Map<String,String> tableRules = TableConstant.getTableByName(tableName).getRules();
+//        List<Map.Entry<String,String>> entryList = new ArrayList<>(insertItems.entrySet());
+//        List<Map.Entry<String,String>> newEntryList = new ArrayList<>();
+//        entryList.forEach(entry -> {
+//            String ruleType = tableRules.get(entry.getKey());
+//
+//        });
+//
+//        return entryList.stream().collect(Collectors.toMap
+//                (Map.Entry<String,String>::getKey,Map.Entry<String,String>::getValue));
+//    }
+        return null;
     }
 }
