@@ -18,7 +18,7 @@ public class ExpressionTest {
     public static Logger logger = Logger.getLogger("log_" + ExpressionTest.class.getSimpleName());
 
     public static void main(String[] args)throws Exception {
-        String sql = "select * from website where 1.1;";
+        String sql = "select * from website w where (w.id = 1);";
         Select select = (Select) CCJSqlParserUtil.parse(sql);
         PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
         Expression expression = plainSelect.getWhere();

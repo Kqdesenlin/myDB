@@ -1,9 +1,6 @@
 package com.Infrastructure.Visitor;
 
-import net.sf.jsqlparser.expression.DoubleValue;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.schema.Column;
 
 /**
@@ -14,7 +11,9 @@ import net.sf.jsqlparser.schema.Column;
 public class FinalParserClass {
     public static boolean ifCanFinalParser(Expression expression) {
         if ((expression instanceof Column) || (expression instanceof LongValue) ||
-                (expression instanceof StringValue) || (expression instanceof DoubleValue)) {
+                (expression instanceof StringValue) || (expression instanceof DoubleValue) ||
+                (expression instanceof NullValue)
+        ) {
             return true;
         }
         return false;
