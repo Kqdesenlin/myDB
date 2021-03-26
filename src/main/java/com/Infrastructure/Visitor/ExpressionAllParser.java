@@ -17,18 +17,25 @@ import java.util.List;
  * @date: 2021/3/24
  * @description:对expression完全解析
  */
-public class ExpressionAllParser implements ExpressionVisitor {
+public abstract class ExpressionAllParser implements ExpressionVisitor {
 
-    private List<FinalBinaryExpression> finalBinaryExpressionList = new ArrayList<>();
     //解析到是一个括号(插入语)
     @Override
     public void visit(Parenthesis parenthesis) {
         parenthesis.getExpression().accept(this);
     }
 
+
     @Override
     public void visit(EqualsTo equalsTo) {
+        FinalBinaryExpression finalBinaryExpression = new FinalBinaryExpression();
+        Expression left  = equalsTo.getLeftExpression();
+        Expression right = equalsTo.getRightExpression();
+        if (FinalParserClass.ifCanFinalParser(left)) {
+            finalBinaryExpression.setLeftExpression(left);
+        } else {
 
+        }
     }
 
     @Override

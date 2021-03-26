@@ -15,14 +15,14 @@ import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.NamedExpressionList;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.ColDataType;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
 
@@ -112,29 +112,6 @@ public class SqlToEntity {
                 .collect(Collectors.toList());
         insertEntity.setColumnOrder(columnOrder);
         //添加具体插入的值
-        insert.getItemsList().accept(
-                new ItemsListVisitor() {
-                    @Override
-                    public void visit(ExpressionList expressionList) {
-
-                    }
-
-                    @Override
-                    public void visit(SubSelect subSelect) {
-
-                    }
-
-                    @Override
-                    public void visit(NamedExpressionList namedExpressionList) {
-
-                    }
-
-                    @Override
-                    public void visit(MultiExpressionList multiExprList) {
-
-                    }
-                }
-        );
         return null;
     }
 
@@ -147,6 +124,45 @@ public class SqlToEntity {
     }
 
     public ResultDto sqlMapToSelect(Select select){
+        PlainSelect plainSelect = (PlainSelect)select.getSelectBody();
+        //from
+        FromItem fromItem = plainSelect.getFromItem();
+        fromItem.accept(new FromItemVisitor() {
+            @Override
+            public void visit(Table tableName) {
+
+            }
+
+            @Override
+            public void visit(SubSelect subSelect) {
+
+            }
+
+            @Override
+            public void visit(SubJoin subjoin) {
+
+            }
+
+            @Override
+            public void visit(LateralSubSelect lateralSubSelect) {
+
+            }
+
+            @Override
+            public void visit(ValuesList valuesList) {
+
+            }
+
+            @Override
+            public void visit(TableFunction tableFunction) {
+
+            }
+
+            @Override
+            public void visit(ParenthesisFromItem aThis) {
+
+            }
+        });
         return null;
     }
 
