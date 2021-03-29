@@ -1,5 +1,8 @@
 package com.Infrastructure.Visitor;
 
+import com.Infrastructure.TableInfo.TableInfo;
+import com.domain.repository.TableConstant;
+import com.domain.service.SubSelectToTempTable;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
 
@@ -10,14 +13,23 @@ import net.sf.jsqlparser.statement.select.*;
  */
 public class FromItemVisitorWithRtn implements FromItemVisitor {
 
+    //作为解析之后的返回
+    private TableInfo tableInfo;
+
+    public TableInfo getTableInfo() {
+        return this.tableInfo;
+    }
+
     @Override
     public void visit(Table tableName) {
-
+        TableInfo tableInfo = TableConstant.getTableByName(tableName.getName());
+        this.tableInfo = tableInfo;
     }
 
     @Override
     public void visit(SubSelect subSelect) {
-
+        TableInfo tableInfo = SubSelectToTempTable.subSelectToTempTable(subSelect);
+        this.tableInfo = tableInfo;
     }
 
     @Override

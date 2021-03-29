@@ -44,7 +44,7 @@ public class DDLOperate {
         List<String> rulesOrder = columnInfoList.stream()
                 .map(ColumnInfo::getColumnName)
                 .collect(Collectors.toList());
-        TableInfo newTable = new TableInfo(new BTree<Integer,List<String>>(),columnInfoList,rulesOrder);
+        TableInfo newTable = new TableInfo(tableName,new BTree<Integer,List<String>>(),columnInfoList,rulesOrder);
         TableConstant.tableMap.put(tableName,newTable);
         return rtn;
 

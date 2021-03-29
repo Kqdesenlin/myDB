@@ -14,12 +14,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Data
 @AllArgsConstructor
 public class TableInfo {
+    String tableName;
     BTree<Integer,List<String>> bTree;
     List<ColumnInfo> columnInfoList;
     List<String> rulesOrder;
     public AtomicInteger primaryKey = new AtomicInteger(1);
 
     public TableInfo(BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder) {
+        this.bTree = bTree;
+        this.columnInfoList = columnInfoList;
+        this.rulesOrder = rulesOrder;
+    }
+    public TableInfo(String tableName,BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder) {
+        this.tableName = tableName;
         this.bTree = bTree;
         this.columnInfoList = columnInfoList;
         this.rulesOrder = rulesOrder;

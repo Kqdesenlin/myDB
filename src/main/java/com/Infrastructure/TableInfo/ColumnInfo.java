@@ -2,14 +2,12 @@ package com.Infrastructure.TableInfo;
 
 import com.domain.Entity.enums.ColumnSpecsEnums;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 
 /**
  * @author: zhangQY
  * @date: 2021/3/22
- * @description:列信息
+ * @description: 列信息
  */
-@Data
 @AllArgsConstructor
 public class ColumnInfo {
     private String columnName;
@@ -22,7 +20,8 @@ public class ColumnInfo {
     public ColumnInfo() {
 
     }
-    public ColumnInfo(String name ,String type) {
+
+    public ColumnInfo(String name , String type) {
         this.columnName = name;
         this.columnType = type;
         this.columnArgument = -1;
@@ -38,6 +37,61 @@ public class ColumnInfo {
         this.notNull = false;
         this.unique = false;
         this.primaryKey = false;
+    }
+
+
+    public ColumnInfo setColumnName(String columnName) {
+        this.columnName = columnName;
+        return this;
+    }
+
+    public ColumnInfo setColumnType(String columnType) {
+        this.columnType = columnType;
+        return this;
+    }
+
+    public ColumnInfo setColumnArgument(int columnArgument) {
+        this.columnArgument = columnArgument;
+        return this;
+    }
+
+    public ColumnInfo setNotNull(boolean notNull) {
+        this.notNull = notNull;
+        return this;
+    }
+
+    public ColumnInfo setUnique(boolean unique) {
+        this.unique = unique;
+        return this;
+    }
+
+    public ColumnInfo setPrimaryKey(boolean primaryKey) {
+        this.primaryKey = primaryKey;
+        return this;
+    }
+
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public String getColumnType() {
+        return columnType;
+    }
+
+    public int getColumnArgument() {
+        return columnArgument;
+    }
+
+    public boolean isNotNull() {
+        return notNull;
+    }
+
+    public boolean isUnique() {
+        return unique;
+    }
+
+    public boolean isPrimaryKey() {
+        return primaryKey;
     }
 
     public void addSpecs(ColumnSpecsEnums columnSpecsEnums) {

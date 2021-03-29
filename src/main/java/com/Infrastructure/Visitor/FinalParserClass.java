@@ -18,4 +18,19 @@ public class FinalParserClass {
         }
         return false;
     }
+
+    public static boolean ifConstant(Expression expression) {
+        if ((expression instanceof LongValue) || (expression instanceof StringValue) ||
+                (expression instanceof DoubleValue) || (expression instanceof NullValue)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean ifColumn(Expression expression) {
+        if (expression instanceof Column) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -127,42 +127,6 @@ public class SqlToEntity {
         PlainSelect plainSelect = (PlainSelect)select.getSelectBody();
         //from
         FromItem fromItem = plainSelect.getFromItem();
-        fromItem.accept(new FromItemVisitor() {
-            @Override
-            public void visit(Table tableName) {
-
-            }
-
-            @Override
-            public void visit(SubSelect subSelect) {
-
-            }
-
-            @Override
-            public void visit(SubJoin subjoin) {
-
-            }
-
-            @Override
-            public void visit(LateralSubSelect lateralSubSelect) {
-
-            }
-
-            @Override
-            public void visit(ValuesList valuesList) {
-
-            }
-
-            @Override
-            public void visit(TableFunction tableFunction) {
-
-            }
-
-            @Override
-            public void visit(ParenthesisFromItem aThis) {
-
-            }
-        });
         return null;
     }
 
