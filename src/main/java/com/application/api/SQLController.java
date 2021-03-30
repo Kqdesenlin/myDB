@@ -1,4 +1,4 @@
-package com.interfaces.api;
+package com.application.api;
 
 import com.domain.service.SqlToEntity;
 import org.springframework.web.bind.annotation.RestController;

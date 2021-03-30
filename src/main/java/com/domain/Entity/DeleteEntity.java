@@ -1,12 +1,11 @@
 package com.domain.Entity;
 
+import com.Infrastructure.TableInfo.TableInfo;
 import lombok.Data;
-
-import java.util.Map;
+import net.sf.jsqlparser.expression.Expression;
 
 @Data
 public class DeleteEntity {
-    String tableName;
-    Map<String,String> deleteRules;
-    boolean ifContainPK = false;
+    TableInfo tableInfo;
+    Expression expression;
 }

@@ -1,4 +1,4 @@
-package com.interfaces.vo;
+package com.application.vo;
 
 import lombok.Data;
 

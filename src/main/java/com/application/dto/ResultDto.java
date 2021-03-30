@@ -1,4 +1,4 @@
-package com.interfaces.dto;
+package com.application.dto;
 
 import lombok.AllArgsConstructor;
 

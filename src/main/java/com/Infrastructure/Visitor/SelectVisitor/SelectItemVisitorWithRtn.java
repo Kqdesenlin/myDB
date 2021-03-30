@@ -36,7 +36,12 @@ public class SelectItemVisitorWithRtn implements SelectItemVisitor {
     }
     @Override
     public void visit(AllColumns allColumns) {
-
+        for (int i = 0;i<columnInfoList.size();++i) {
+            SelectItemInfo selectItemInfo = new SelectItemInfo(
+                    columnInfoList.get(i).getColumnName(),
+                    false,i,null,columnInfoList.get(i));
+            this.selectItemInfoList.add(selectItemInfo);
+        }
     }
 
     @Override

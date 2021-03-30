@@ -23,7 +23,12 @@ public class FromItemVisitorWithRtn implements FromItemVisitor {
     @Override
     public void visit(Table tableName) {
         TableInfo tableInfo = TableConstant.getTableByName(tableName.getName());
-        this.tableInfo = tableInfo;
+
+        try {
+            this.tableInfo = tableInfo.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

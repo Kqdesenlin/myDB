@@ -1,20 +1,21 @@
 package com.domain.event;
 
+import com.Infrastructure.Service.TypeConverUtils;
 import com.Infrastructure.TableInfo.ColumnInfo;
 import com.Infrastructure.TableInfo.ColumnValueInfo;
 import com.Infrastructure.TableInfo.SelectItemInfo;
+import com.Infrastructure.TableInfo.TableInfo;
 import com.Infrastructure.Visitor.ExpressionVisitorWithBool;
 import com.Infrastructure.Visitor.SelectVisitor.SelectItemVisitorWithRtn;
+import com.domain.Entity.DeleteEntity;
+import com.domain.Entity.InsertEntity;
+import com.domain.Entity.SelectEntity;
 import com.domain.Entity.bTree.BTree;
 import com.domain.Entity.bTree.Entry;
-import com.domain.repository.TableConstant;
-import com.domain.Entity.*;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
 import com.domain.Entity.result.SelectResult;
-import com.Infrastructure.Service.TypeConverUtils;
-import com.Infrastructure.TableInfo.TableInfo;
-import com.Infrastructure.Utils.EntityComparator;
+import com.domain.repository.TableConstant;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
@@ -30,32 +31,36 @@ public class DMLOperate {
 
     private static Logger logger = Logger.getLogger("log_dmlOperate");
 
-    public SelectResult select(SelectEntity selectEntity) {
+    public OperateResult select(SelectEntity selectEntity) {
         //获取表
         TableInfo tempTableInfo = selectEntity.getTableInfo();
+        List<ColumnInfo> columnInfoList = tempTableInfo.getColumnInfoList();
         //expression解析
         List<String> columnOrder = tempTableInfo.getRulesOrder();
-        BTree<Integer,List<String>> bTree = tempTableInfo.getBTree();
-        Iterator<Entry<Integer,List<String>>> iterator = bTree.iterator();
+        BTree<Integer, List<String>> bTree = tempTableInfo.getBTree();
+        Iterator<Entry<Integer, List<String>>> iterator = bTree.iterator();
         Expression expression = selectEntity.getWhereExpression();
-        List<Integer> whereFilterPK = new ArrayList<>();
-        //获取每一行
-        while (iterator.hasNext()) {
-            Entry<Integer,List<String>> entry = iterator.next();
-            List<String> columnValue = entry.getValue();
-            ColumnValueInfo columnValueInfo = new ColumnValueInfo(columnOrder,columnValue);
-            //构建行对象，然后注入到visitor中
-            ExpressionVisitorWithBool expressionVisitorWithBool = new ExpressionVisitorWithBool(columnValueInfo);
-            expression.accept(expressionVisitorWithBool);
-            //如果通过where判断，把主键添加到list
-            if (expressionVisitorWithBool.isIfPass()) {
-                whereFilterPK.add(entry.getKey());
+        if (null != expression) {
+            List<Integer> whereFilterPK = new ArrayList<>();
+            //获取每一行
+            while (iterator.hasNext()) {
+                Entry<Integer, List<String>> entry = iterator.next();
+                List<String> columnValue = entry.getValue();
+                ColumnValueInfo columnValueInfo = new ColumnValueInfo(columnOrder, columnValue);
+                //构建行对象，然后注入到visitor中
+                ExpressionVisitorWithBool expressionVisitorWithBool = new ExpressionVisitorWithBool(columnValueInfo);
+                expression.accept(expressionVisitorWithBool);
+                //把未通过的，不符合的添加到list
+                if (!expressionVisitorWithBool.isIfPass()) {
+                    whereFilterPK.add(entry.getKey());
+                }
+            }
+            //删除不符合条件的值
+            for (Integer filterPK : whereFilterPK) {
+                bTree.delete(filterPK);
             }
         }
-        //删除不符合条件的值
-        for (Integer filterPK : whereFilterPK) {
-            bTree.delete(filterPK);
-        }
+
         //select ...from 之间，对最后得到的值进行筛选
         List<SelectItem> selectItemList = selectEntity.getSelectItemList();
         List<SelectItemInfo> selectItemInfoList = new ArrayList<>();
@@ -64,18 +69,18 @@ public class DMLOperate {
             //需要返回一个list，list内是多条item，例如,item可能是对应的表中的值，也可能是常量
             SelectItemVisitorWithRtn selectItemVisitorWithRtn = new SelectItemVisitorWithRtn();
             selectItemVisitorWithRtn.setColumnOrder(columnOrder);
-//            selectItemVisitorWithRtn.setColumnInfoList();
+            selectItemVisitorWithRtn.setColumnInfoList(columnInfoList);
             selectItem.accept(selectItemVisitorWithRtn);
             selectItemInfoList.addAll(selectItemVisitorWithRtn.getSelectItemInfoList());
         }
         //对每一行的数据，根据selectItem的解析需求，获取值，最终添加到返回请求中
         List<List<String>> finalSelectResult = new ArrayList<>();
-        Iterator<Entry<Integer,List<String>>> getIterator = bTree.iterator();
+        Iterator<Entry<Integer, List<String>>> getIterator = bTree.iterator();
         while (getIterator.hasNext()) {
-            Entry<Integer,List<String>> entry = iterator.next();
+            Entry<Integer, List<String>> entry = getIterator.next();
             List<String> value = entry.getValue();
             List<String> newValue = new ArrayList<>();
-            for (int var1 = 0;var1<selectItemInfoList.size();var1++) {
+            for (int var1 = 0; var1 < selectItemInfoList.size(); var1++) {
                 SelectItemInfo selectItemInfo = selectItemInfoList.get(var1);
                 if (selectItemInfo.isIfConstant()) {
                     newValue.add(selectItemInfo.getConstant());
@@ -85,100 +90,89 @@ public class DMLOperate {
             }
             finalSelectResult.add(newValue);
         }
+        List<String> finalSelectColumn = selectItemInfoList.stream().map(SelectItemInfo::getItemName).collect(Collectors.toList());
 
-        //替换除了btree之外的别的属性
-        List<ColumnInfo> newColumnInfoList = selectItemInfoList.stream()
-                .map(selectItemInfo ->
-                        new ColumnInfo().setColumnName(selectItemInfo.getItemName())
-                                .setColumnType(selectItemInfo.getColumnType().getColumnType())
-                                .setColumnArgument(selectItemInfo.getColumnType().getColumnArgument())
-                                .setNotNull(selectItemInfo.getColumnType().isNotNull())
-                                .setUnique(selectItemInfo.getColumnType().isUnique())
-                                .setPrimaryKey(selectItemInfo.getColumnType().isPrimaryKey()))
-                .collect(Collectors.toList());
-        tempTableInfo.setColumnInfoList(newColumnInfoList);
-        tempTableInfo.setRulesOrder(selectItemInfoList.stream().map(SelectItemInfo::getItemName).collect(Collectors.toList()));
-        return tempTableInfo;
+        return OperateResult.ok("查询成功", new SelectResult(finalSelectColumn, finalSelectResult));
 
     }
-    public SelectResult selectTotalTable(SelectEntity selectEntity){
-        String tableName = selectEntity.getTableName();
-        if (!checkOperate.ifTableExists(tableName)){
-            return SelectResult.error("查找表不存在");
-        }
-        //获取表
-        TableInfo tableInfo = TableConstant.getTableByName(tableName);
-        List<String> tableRules = tableInfo.getRulesOrder();
-        //全表扫描
-        List<Entry<Integer,List<String>>> items = tableInfo.getBTree().breathFirstSearch();
-        long itemNumber = items.size();
-        //where表达式筛选
-        logger.info("beforeFilter:" + items.toString());
-        //selectItems筛选
-        List<String> selectItems = selectEntity.getSelectItems();
-        items.forEach(entry -> {
-            List<String> entryValue = entry.getValue();
-            List<String> afterFilterItems = new ArrayList<>();
-            for (String selectItem : selectItems) {
-                for (int var2 = 0; var2 < tableRules.size(); var2++) {
-                    if (selectItem.equals(tableRules.get(var2))) {
-                        afterFilterItems.add(entryValue.get(var2));
-                        break;
-                    }
-                }
-            }
-            entry.setValue(afterFilterItems);
-        });
-        logger.info("afterFilter:" + items.toString());
-        List<List<String>> filtedItems;
-        //有主键选项，返回主键
-        if (selectItems.contains(TableConstant.primaryKey)){
-            filtedItems = (List<List<String>>)items.stream()
-                    .sorted(new EntityComparator())
-                    .map(entry -> {
-                        List<String> entryToList = new ArrayList<>();
-                        entryToList.add(String.valueOf(entry.getKey()));
-                        entryToList.addAll(entry.getValue());
-                        return entryToList;
-                    }).collect(Collectors.toList());
-        } else {
-            //无主键选项，不添加主键
-            filtedItems = (List<List<String>>)items.stream()
-                    .sorted(new EntityComparator())
-                    .map(entry -> {
-                        return (List<String>) new ArrayList<String>(entry.getValue());
-                    }).collect(Collectors.toList());
-        }
-
-        return SelectResult.ok("查询成功").setRules(selectItems).setItems(filtedItems);
-    }
-
-    /**
-     * 带条件的复杂查询
-     * @param complexSelectEntity
-     * @return
-     */
-    public SelectResult complexSelectTotalTable(ComplexSelectEntity complexSelectEntity){
-        String tableName = complexSelectEntity.getTableName();
-        if (!checkOperate.ifTableExists(tableName)){
-            return SelectResult.error("查找表不存在");
-        }
-        TableInfo tableInfo = TableConstant.getTableByName(tableName);
-
-        return null;
-    }
+//    public SelectResult selectTotalTable(SelectEntity selectEntity){
+//        String tableName = selectEntity.getTableName();
+//        if (!checkOperate.ifTableExists(tableName)){
+//            return SelectResult.error("查找表不存在");
+//        }
+//        //获取表
+//        TableInfo tableInfo = TableConstant.getTableByName(tableName);
+//        List<String> tableRules = tableInfo.getRulesOrder();
+//        //全表扫描
+//        List<Entry<Integer,List<String>>> items = tableInfo.getBTree().breathFirstSearch();
+//        long itemNumber = items.size();
+//        //where表达式筛选
+//        logger.info("beforeFilter:" + items.toString());
+//        //selectItems筛选
+//        List<String> selectItems = selectEntity.getSelectItems();
+//        items.forEach(entry -> {
+//            List<String> entryValue = entry.getValue();
+//            List<String> afterFilterItems = new ArrayList<>();
+//            for (String selectItem : selectItems) {
+//                for (int var2 = 0; var2 < tableRules.size(); var2++) {
+//                    if (selectItem.equals(tableRules.get(var2))) {
+//                        afterFilterItems.add(entryValue.get(var2));
+//                        break;
+//                    }
+//                }
+//            }
+//            entry.setValue(afterFilterItems);
+//        });
+//        logger.info("afterFilter:" + items.toString());
+//        List<List<String>> filtedItems;
+//        //有主键选项，返回主键
+//        if (selectItems.contains(TableConstant.primaryKey)){
+//            filtedItems = (List<List<String>>)items.stream()
+//                    .sorted(new EntityComparator())
+//                    .map(entry -> {
+//                        List<String> entryToList = new ArrayList<>();
+//                        entryToList.add(String.valueOf(entry.getKey()));
+//                        entryToList.addAll(entry.getValue());
+//                        return entryToList;
+//                    }).collect(Collectors.toList());
+//        } else {
+//            //无主键选项，不添加主键
+//            filtedItems = (List<List<String>>)items.stream()
+//                    .sorted(new EntityComparator())
+//                    .map(entry -> {
+//                        return (List<String>) new ArrayList<String>(entry.getValue());
+//                    }).collect(Collectors.toList());
+//        }
+//
+//        return SelectResult.ok("查询成功").setRules(selectItems).setItems(filtedItems);
+//    }
+//
+//    /**
+//     * 带条件的复杂查询
+//     * @param complexSelectEntity
+//     * @return
+//     */
+//    public SelectResult complexSelectTotalTable(ComplexSelectEntity complexSelectEntity){
+//        String tableName = complexSelectEntity.getTableName();
+//        if (!checkOperate.ifTableExists(tableName)){
+//            return SelectResult.error("查找表不存在");
+//        }
+//        TableInfo tableInfo = TableConstant.getTableByName(tableName);
+//
+//        return null;
+//    }
 
 
     public OperateResult insert(InsertEntity insertEntity) {
         OperateResult operateResult = OperateResult.ok("插入成功");
         String tableName = insertEntity.getTableName();
-        if (!checkOperate.ifTableExists(tableName)){
+        if (!checkOperate.ifTableExists(tableName)) {
             return OperateResult.error("插入表不存在");
         }
 
         operateResult = checkOperate.ifInsertItemsLegal(insertEntity);
-        if(ResultCode.ok.getResultCode()
-                != operateResult.getCode().getResultCode()){
+        if (ResultCode.ok.getResultCode()
+                != operateResult.getCode().getResultCode()) {
             return operateResult;
         }
 
@@ -188,34 +182,42 @@ public class DMLOperate {
             insertEntity.setColumnOrder(columnOrder);
         }
         List<String> insertItems = TypeConverUtils.mapToListByListOrder(
-                insertEntity,tableInfo.getRulesOrder());
+                insertEntity, tableInfo.getRulesOrder());
         Integer primaryKey = tableInfo.primaryKey.getAndIncrement();
-        Entry<Integer,List<String>> insertEntry = new Entry<Integer,List<String>>(primaryKey,insertItems);
+        Entry<Integer, List<String>> insertEntry = new Entry<Integer, List<String>>(primaryKey, insertItems);
         tableInfo.getBTree().addNode(insertEntry);
         return OperateResult.ok("插入成功");
     }
 
-    public OperateResult delete(DeleteEntity deleteEntity){
-        //有主键删除
-        if (deleteEntity.isIfContainPK()){
-            return deleteByPK(deleteEntity);
-        }else{
-
+    public OperateResult delete(DeleteEntity deleteEntity) {
+        TableInfo tempTableInfo = deleteEntity.getTableInfo();
+        //expression解析
+        List<String> columnOrder = tempTableInfo.getRulesOrder();
+        BTree<Integer, List<String>> bTree = tempTableInfo.getBTree();
+        Iterator<Entry<Integer, List<String>>> iterator = bTree.iterator();
+        Expression expression = deleteEntity.getExpression();
+        if (null != expression) {
+            List<Integer> whereFilterPK = new ArrayList<>();
+            //获取每一行
+            while (iterator.hasNext()) {
+                Entry<Integer, List<String>> entry = iterator.next();
+                List<String> columnValue = entry.getValue();
+                ColumnValueInfo columnValueInfo = new ColumnValueInfo(columnOrder, columnValue);
+                //构建行对象，然后注入到visitor中
+                ExpressionVisitorWithBool expressionVisitorWithBool = new ExpressionVisitorWithBool(columnValueInfo);
+                expression.accept(expressionVisitorWithBool);
+                //把未通过的，不符合的添加到list
+                if (!expressionVisitorWithBool.isIfPass()) {
+                    whereFilterPK.add(entry.getKey());
+                }
+            }
+            //删除不符合条件的值
+            for (Integer filterPK : whereFilterPK) {
+                bTree.delete(filterPK);
+            }
+        } else {
+            bTree = new BTree<>();
         }
-        return null;
-        //无主键删除
-    }
-
-    public OperateResult deleteByPK(DeleteEntity deleteEntity){
-        String tableName = deleteEntity.getTableName();
-        Integer pk = Integer.valueOf(deleteEntity.getDeleteRules().get(TableConstant.primaryKey));
-        TableInfo tableInfo = TableConstant.getTableByName(tableName);
-        Entry<Integer,List<String>> deleteEntry = tableInfo.getBTree().delete(pk);
-        return checkOperate.checkDeleteResultLegal(deleteEntry);
-    }
-
-    public OperateResult deleteByRules(DeleteEntity deleteEntity){
-        String tableName = deleteEntity.getTableName();
-        return null;
+        return OperateResult.ok("删除成功");
     }
 }

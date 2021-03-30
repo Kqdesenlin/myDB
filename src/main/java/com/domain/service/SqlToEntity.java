@@ -3,6 +3,7 @@ package com.domain.service;
 import com.Infrastructure.TableInfo.TableInfo;
 import com.Infrastructure.Visitor.FromItemVisitorWithRtn;
 import com.Infrastructure.Visitor.SelectVisitor.ItemsListVisitorWithList;
+import com.domain.Entity.DeleteEntity;
 import com.domain.Entity.InsertEntity;
 import com.domain.Entity.SelectEntity;
 import com.domain.Entity.common.ColumnInfoEntity;
@@ -11,7 +12,7 @@ import com.domain.Entity.createTable.CreateTableEntity;
 import com.domain.Entity.result.OperateResult;
 import com.domain.event.DDLOperate;
 import com.domain.event.DMLOperate;
-import com.domain.event.sqlParser.SelectParser;
+import com.domain.repository.TableConstant;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
@@ -43,8 +44,6 @@ public class SqlToEntity {
 
     Logger logger = Logger.getLogger("log_" + SqlToEntity.class.getSimpleName());
 
-    SelectParser selectParser = new SelectParser();
-
     DDLOperate ddlOperate = new DDLOperate();
 
     DMLOperate dmlOperate = new DMLOperate();
@@ -75,7 +74,7 @@ public class SqlToEntity {
     }
 
     public OperateResult sqlMapToCreate(CreateTable createTable) {
-        /**
+        /*
          * 装配entity
          */
         CreateTableEntity createTableEntity = new CreateTableEntity();
@@ -105,7 +104,7 @@ public class SqlToEntity {
             }
             createTableEntity.getColumnInfo().add(columnInfoEntity);
         }
-        /**
+        /*
          * 执行操作
          */
         OperateResult operateResult = ddlOperate.createTable(createTableEntity);
@@ -124,7 +123,7 @@ public class SqlToEntity {
                     .collect(Collectors.toList());
             insertEntity.setColumnOrder(columnOrder);
         } else {
-            //如果没有列名，在insert的时候，从tableinfo中获取
+            //如果没有列名，在insert的时候，从tableInfo中获取
         }
         //添加具体插入的值
         List<String> columnList = new ArrayList<>();
@@ -137,8 +136,14 @@ public class SqlToEntity {
         return operateResult;
     }
 
-    public OperateResult sqlMapToDelete() {
-        return null;
+    public OperateResult sqlMapToDelete(Delete delete) {
+        DeleteEntity deleteEntity = new DeleteEntity();
+        //from ... where
+        TableInfo tempTableInfo = TableConstant.getTableByName(delete.getTable().getName());
+        deleteEntity.setTableInfo(tempTableInfo);
+        deleteEntity.setExpression(delete.getWhere());
+        OperateResult operateResult = dmlOperate.delete(deleteEntity);
+        return operateResult;
     }
 
     public OperateResult sqlMapToUpdate() {
@@ -147,7 +152,7 @@ public class SqlToEntity {
 
     public OperateResult sqlMapToSelect(Select select){
 
-        //fromItem解析
+        //fromItem添加
         SelectEntity selectEntity = new SelectEntity();
         PlainSelect plainSelect = (PlainSelect)select.getSelectBody();
         FromItem fromItem = plainSelect.getFromItem();
@@ -155,12 +160,13 @@ public class SqlToEntity {
         fromItem.accept(visitorWithRtn);
         TableInfo tempTableInfo = visitorWithRtn.getTableInfo();
         selectEntity.setTableInfo(tempTableInfo);
+        //whereExpression添加
         Expression whereExpression = plainSelect.getWhere();
         selectEntity.setWhereExpression(whereExpression);
+        //ItemList添加
         List<SelectItem> selectItemList = plainSelect.getSelectItems();
         selectEntity.setSelectItemList(selectItemList);
-        OperateResult operateResult = dmlOperate.
-        return null;
+        return dmlOperate.select(selectEntity);
     }
 
 }

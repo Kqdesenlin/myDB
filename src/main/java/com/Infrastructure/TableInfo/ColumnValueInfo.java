@@ -18,4 +18,13 @@ public class ColumnValueInfo {
     private List<String> columnNameList;
     //对应的值
     private List<String> columnValueList;
+
+    public String findValueByName(String name) {
+        for (int var1 = 0; var1<columnNameList.size();++var1) {
+            if (columnNameList.get(var1).equals(name)) {
+                return columnValueList.get(var1);
+            }
+        }
+        return "";
+    }
 }

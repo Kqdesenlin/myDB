@@ -1,6 +1,7 @@
 package com.Test;
 
 import com.domain.Entity.result.OperateResult;
+import com.domain.Entity.result.SelectResult;
 import com.domain.service.SqlToEntity;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +22,16 @@ public class TestMain {
         String insertSql3 = "insert into new_table(column2,id) values('abcde',3)";
         log.info(sqlToEntity.sqlMapToDML(insertSql3).toString());
         String selectSql1 = "select * from new_table";
-
+        OperateResult operateResult = sqlToEntity.sqlMapToDML(selectSql1);
+        log.info(((SelectResult)operateResult.getRtn()).toString());
+        String selectSql2 = "select id from new_table";
+        OperateResult operateResult1 = sqlToEntity.sqlMapToDML(selectSql2);
+        String selectSql3 = "select column2,id from new_table";
+        OperateResult operateResult2 = sqlToEntity.sqlMapToDML(selectSql3);
+        String selectSql4 = "select id from new_table where id = 1";
+        OperateResult operateResult3 = sqlToEntity.sqlMapToDML(selectSql4);
+        String selectSql5 = "select * from new_table where id =1";
+        OperateResult operateResult4 = sqlToEntity.sqlMapToDML(selectSql5);
+        log.info("");
     }
 }

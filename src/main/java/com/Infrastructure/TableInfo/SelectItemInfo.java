@@ -1,5 +1,6 @@
 package com.Infrastructure.TableInfo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * @description: select ... from之间的item
  */
 @Data
+@AllArgsConstructor
 public class SelectItemInfo {
     //最终用于显示的列名
     private String itemName;
@@ -19,4 +21,8 @@ public class SelectItemInfo {
     private String constant;
     //column在原来的列中的类型
     private ColumnInfo columnType;
+
+    public SelectItemInfo() {
+
+    }
 }

@@ -1,7 +1,7 @@
 package com.application.service;
 
 import com.domain.Entity.result.OperateResult;
-import com.interfaces.dto.ResultDto;
+import com.application.dto.ResultDto;
 
 /**
  * @author: zhangQY

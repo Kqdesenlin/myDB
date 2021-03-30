@@ -2,7 +2,6 @@ package com.Infrastructure.Visitor;
 
 import com.Infrastructure.TableInfo.ColumnValueInfo;
 import com.Infrastructure.Visitor.FinalExpression.FinalBinaryExpression;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
@@ -11,9 +10,6 @@ import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author: zhangQY
@@ -25,11 +21,11 @@ public class ExpressionVisitorWithBool implements ExpressionVisitor {
 
     private ColumnValueInfo columnValueInfo;
 
-    private boolean ifPass;
+    private int ifPass = 0;
 
     public ExpressionVisitorWithBool(ColumnValueInfo columnValueInfo) {
         this.columnValueInfo = columnValueInfo;
-        this.ifPass = false;
+        this.ifPass = 0;
     }
 
 
@@ -43,12 +39,28 @@ public class ExpressionVisitorWithBool implements ExpressionVisitor {
     @Override
     public void visit(EqualsTo equalsTo) {
         FinalBinaryExpression finalBinaryExpression = new FinalBinaryExpression();
-        Expression left  = equalsTo.getLeftExpression();
-        Expression right = equalsTo.getRightExpression();
-        if (FinalParserClass.ifCanFinalParser(left)) {
-            finalBinaryExpression.setLeftExpression(left);
+        Expression leftExp  = equalsTo.getLeftExpression();
+        String left = "";
+        Expression rightExp = equalsTo.getRightExpression();
+        String right = "";
+        if (FinalParserClass.ifColumn(leftExp)) {
+            left = columnValueInfo.findValueByName(leftExp.toString());
+        } else if (FinalParserClass.ifConstant(leftExp)){
+            left = leftExp.toString();
         } else {
 
+        }
+        if (FinalParserClass.ifColumn(rightExp)) {
+            right = columnValueInfo.findValueByName(rightExp.toString());
+        } else if (FinalParserClass.ifConstant(rightExp)) {
+            right = rightExp.toString();
+        } else {
+
+        }
+        if (left.equals(right)) {
+            this.ifPass = 1;
+        } else {
+            this.ifPass = 0;
         }
     }
 

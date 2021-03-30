@@ -1,21 +1,9 @@
 package com.Test;
 
-import com.domain.repository.TableConstant;
-import com.domain.Entity.*;
-import com.domain.Entity.result.OperateResult;
-import com.domain.Entity.result.ResultCode;
-import com.domain.Entity.result.SelectResult;
-import com.Infrastructure.TableInfo.TableInfo;
-import com.domain.event.DDLOperate;
-import com.domain.event.DMLOperate;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.insert.Insert;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class DDLTest {
@@ -74,36 +62,36 @@ public class DDLTest {
         return false;
     }
 
-    public static boolean selectItems(){
-        SelectEntity selectEntity = new SelectEntity();
-        selectEntity.setTableName(tableName);
-        List<String> list = new ArrayList<>();
-        list.add("StringColumn");
-        list.add("IntColumn");
-        list.add("DoubleColumn");
-        selectEntity.setSelectItems(list);
-        DMLOperate dmlOperate = new DMLOperate();
-        SelectResult selectResult = dmlOperate.selectTotalTable(selectEntity);
-        if (ResultCode.ok == selectResult.code){
-            printSelectResult(selectResult);
-            return true;
-        }
-        System.out.println(selectResult.info);
-        return false;
-    }
-
-    public static void printSelectResult(SelectResult selectResult){
-        List<String> rules = selectResult.getRules();
-        List<List<String>> filtedItems = selectResult.getItems();
-        for (String rule : rules){
-            System.out.print(rule + " ");
-        }
-        System.out.println("");
-        for (List<String> row : filtedItems){
-            for(String item : row){
-                System.out.print(item + " ");
-            }
-            System.out.println("");
-        }
-    }
+//    public static boolean selectItems(){
+//        SelectEntity selectEntity = new SelectEntity();
+//        selectEntity.setTableName(tableName);
+//        List<String> list = new ArrayList<>();
+//        list.add("StringColumn");
+//        list.add("IntColumn");
+//        list.add("DoubleColumn");
+//        selectEntity.setSelectItems(list);
+//        DMLOperate dmlOperate = new DMLOperate();
+//        SelectResult selectResult = dmlOperate.selectTotalTable(selectEntity);
+//        if (ResultCode.ok == selectResult.code){
+//            printSelectResult(selectResult);
+//            return true;
+//        }
+//        System.out.println(selectResult.info);
+//        return false;
+//    }
+//
+//    public static void printSelectResult(SelectResult selectResult){
+//        List<String> rules = selectResult.getRules();
+//        List<List<String>> filtedItems = selectResult.getItems();
+//        for (String rule : rules){
+//            System.out.print(rule + " ");
+//        }
+//        System.out.println("");
+//        for (List<String> row : filtedItems){
+//            for(String item : row){
+//                System.out.print(item + " ");
+//            }
+//            System.out.println("");
+//        }
+//    }
 }
