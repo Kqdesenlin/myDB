@@ -5,7 +5,7 @@ import com.Infrastructure.TableInfo.ColumnValueInfo;
 import com.Infrastructure.TableInfo.SelectItemInfo;
 import com.Infrastructure.TableInfo.TableInfo;
 import com.Infrastructure.Visitor.ExpressionVisitorWithBool;
-import com.Infrastructure.Visitor.FinalExpression.SelectItemVisitorWithRtn;
+import com.Infrastructure.Visitor.SelectVisitor.SelectItemVisitorWithRtn;
 import com.Infrastructure.Visitor.FromItemVisitorWithRtn;
 import com.domain.Entity.bTree.BTree;
 import com.domain.Entity.bTree.Entry;
@@ -27,6 +27,7 @@ public class SubSelectToTempTable {
 
     private static final Logger logger = Logger.getLogger("log_" + SubSelectToTempTable.class.getSimpleName());
 
+    //单表查询
     public static TableInfo selectBodyToTempTable(SelectBody selectBody) {
 
         PlainSelect plainSelect = (PlainSelect) selectBody;
@@ -106,10 +107,11 @@ public class SubSelectToTempTable {
                             .setPrimaryKey(selectItemInfo.getColumnType().isPrimaryKey()))
                 .collect(Collectors.toList());
         tempTableInfo.setColumnInfoList(newColumnInfoList);
-        tempTableInfo.setRulesOrder(selectItemInfoList.stream().map(SelectItemInfo::getItemName).collect(Collectors.toList());
+        tempTableInfo.setRulesOrder(selectItemInfoList.stream().map(SelectItemInfo::getItemName).collect(Collectors.toList()));
         return tempTableInfo;
     }
 
+    //多表查询
     public static TableInfo subSelectToTempTable(SubSelect subSelect) {
         //判断内部是一个select，还是多个平行的select
         SelectBody selectBody = subSelect.getSelectBody();

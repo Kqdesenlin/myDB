@@ -1,9 +1,9 @@
 package com.domain.Entity.enums;
 
 public enum ColumnSpecsEnums {
-    not_null("not","notnull",2),
-    unique("unique","unique",1),
-    primary_key("primary","primarykey",2);
+    not_null("NOT","NOTNULL",2),
+    unique("UNIQUE","UNIQUE",1),
+    primary_key("PRIMARYKEY","PRIMARYKEY",2);
 
     private String first;
     private String total;

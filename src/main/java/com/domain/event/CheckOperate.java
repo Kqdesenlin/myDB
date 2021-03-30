@@ -1,17 +1,18 @@
 package com.domain.event;
 
 import com.Infrastructure.TableInfo.ColumnInfo;
+import com.domain.Entity.InsertEntity;
+import com.domain.Entity.bTree.Entry;
 import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.enums.ColumnSpecsEnums;
-import com.domain.Entity.enums.ColumnTypeLengthEnums;
-import com.domain.repository.TableConstant;
-import com.domain.Entity.InsertEntity;
-import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.enums.ColumnTypeEnums;
-import com.domain.Entity.bTree.Entry;
+import com.domain.Entity.enums.ColumnTypeLengthEnums;
+import com.domain.Entity.result.OperateResult;
+import com.domain.repository.TableConstant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -46,18 +47,20 @@ public class CheckOperate {
             if (!ColumnTypeEnums.ifContains(dataType)) {
                 return OperateResult.error("关键词校验未通过," + dataType + "不存在");
             }
-            columnInfo.setColumnType(dataType);
+            columnInfo.setColumnType(dataType.toUpperCase(Locale.ROOT));
             //关键词的参数校验，如varchar，char等
-            int arguments = Integer.parseInt(columnInfoEntity.getColumnArguments());
-            if (ColumnTypeLengthEnums.ifContains(dataType) && ColumnTypeLengthEnums.findType(dataType).getLength() < arguments) {
-                return OperateResult.error("关键词校验未通过," + dataType + "超过最大长度");
+            if (null != columnInfoEntity.getColumnArguments()) {
+                int arguments = Integer.parseInt(columnInfoEntity.getColumnArguments());
+                if (ColumnTypeLengthEnums.ifContains(dataType) && ColumnTypeLengthEnums.findType(dataType).getLength() < arguments) {
+                    return OperateResult.error("关键词校验未通过," + dataType + "超过最大长度");
+                }
+                columnInfo.setColumnArgument(arguments);
             }
-            columnInfo.setColumnArgument(arguments);
             //特殊条件，如not null,unique校验
             List<String> dataSpecies = columnInfoEntity.getColumnSpecs();
-            for (int var1 = 0; var1<dataSpecies.size();var1++) {
-                String first = dataSpecies.get(var1);
-                ColumnSpecsEnums columnSpecsEnums = ColumnSpecsEnums.findTypeByFirst(first);
+            for (int var1 = 0; var1<dataSpecies.size();) {
+                String first = dataSpecies.get(var1).toUpperCase(Locale.ROOT);
+                ColumnSpecsEnums columnSpecsEnums = ColumnSpecsEnums.findTypeByFirst(first.toUpperCase(Locale.ROOT));
                 if (null == columnSpecsEnums) {
                     return OperateResult.error("关键词校验未通过," + first + "未知条件");
                 }
@@ -72,6 +75,7 @@ public class CheckOperate {
                 if (!columnSpecsEnums.getTotal().equals(sb.toString())) {
                     return OperateResult.error("关键词校验未通过," + sb.toString() + "未知条件");
                 }
+                var1 += length;
                 columnInfo.addSpecs(columnSpecsEnums);
             }
             columnInfoList.add(columnInfo);

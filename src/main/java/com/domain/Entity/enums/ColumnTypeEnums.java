@@ -4,6 +4,8 @@ package com.domain.Entity.enums;
 import com.Infrastructure.Visitor.FinalParserClass;
 import net.sf.jsqlparser.expression.*;
 
+import java.util.Locale;
+
 public enum ColumnTypeEnums {
     Int("INT","整型"),
     Double("DOUBLE","浮点数"),
@@ -43,6 +45,7 @@ public enum ColumnTypeEnums {
     }
 
     public static boolean ifContains(String type){
+        type = type.toUpperCase(Locale.ROOT);
         ColumnTypeEnums findEnum = findType(type);
         if (findEnum.equals(ColumnTypeEnums.UnKnown)){
             return false;

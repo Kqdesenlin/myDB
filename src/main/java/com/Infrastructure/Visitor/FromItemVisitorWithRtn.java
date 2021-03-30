@@ -27,9 +27,14 @@ public class FromItemVisitorWithRtn implements FromItemVisitor {
     }
 
     @Override
-    public void visit(SubSelect subSelect) {
+    public void visit(SubSelect subSelect){
         TableInfo tableInfo = SubSelectToTempTable.subSelectToTempTable(subSelect);
-        this.tableInfo = tableInfo;
+        try {
+            TableInfo newTableInfo = tableInfo.clone();
+            this.tableInfo = newTableInfo;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.Infrastructure.Visitor.FinalExpression;
+package com.Infrastructure.Visitor.SelectVisitor;
 
 import com.Infrastructure.TableInfo.ColumnInfo;
 import com.Infrastructure.TableInfo.SelectItemInfo;

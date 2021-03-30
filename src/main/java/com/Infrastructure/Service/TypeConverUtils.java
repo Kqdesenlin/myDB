@@ -1,23 +1,28 @@
 package com.Infrastructure.Service;
 
-import com.domain.repository.TableConstant;
+import com.domain.Entity.InsertEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class TypeConverUtils {
 
     private static Logger logger = Logger.getLogger("log_" + TypeConverUtils.class.getName());
 
     //根据list对应map中k的顺序，顺序输出value
-    public static List<String> mapToListByListOrder(Map<String,String> map,List<String> list){
+    public static List<String> mapToListByListOrder(InsertEntity insertEntity, List<String> list){
         List<String> rtn = new ArrayList<>();
-        for(String s : list){
-            String val = map.get(s);
-            rtn.add(val);
+        List<String> insertOrder = insertEntity.getColumnOrder();
+        List<String> tableOrder = list;
+        List<String> insertValue = insertEntity.getColumnValue();
+        for (int var1 = 0; var1<tableOrder.size();++var1) {
+            for (int var2 = 0;var2<insertOrder.size();++var2) {
+                if (tableOrder.get(var1).equals(insertOrder.get(var2))) {
+                    rtn.add(insertValue.get(var2));
+                }
+            }
         }
         return rtn;
     }

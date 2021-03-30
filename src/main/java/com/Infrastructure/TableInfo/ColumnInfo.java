@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
  * @description: 列信息
  */
 @AllArgsConstructor
-public class ColumnInfo {
+public class ColumnInfo implements Cloneable{
     private String columnName;
     private String columnType;
     private int columnArgument;

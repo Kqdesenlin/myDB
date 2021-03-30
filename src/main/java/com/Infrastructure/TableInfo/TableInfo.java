@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Data
 @AllArgsConstructor
-public class TableInfo {
+public class TableInfo implements Cloneable{
     String tableName;
     BTree<Integer,List<String>> bTree;
     List<ColumnInfo> columnInfoList;
@@ -30,5 +29,10 @@ public class TableInfo {
         this.bTree = bTree;
         this.columnInfoList = columnInfoList;
         this.rulesOrder = rulesOrder;
+    }
+
+    @Override
+    public TableInfo clone() throws CloneNotSupportedException {
+        return (TableInfo)super.clone();
     }
 }

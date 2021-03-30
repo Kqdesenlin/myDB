@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @AllArgsConstructor
-public class Node<K,V> {
+public class Node<K,V> implements Cloneable{
     private List<Entry<K,V>> entrys;
 
     private List<Node<K,V>> children;
@@ -131,4 +131,5 @@ public class Node<K,V> {
         }
         return new Result<V>(isExist,value,index);
     }
+
 }

@@ -17,8 +17,8 @@ public class InsertTest {
 
     public static void main(String[] args)throws Exception {
         //String sql = "insert into world.city(name,countrycode,district,population) select `name`,`Code`,region,population from world.country where code = 'ABW';\n";
-        //String sql = "insert into world.city(name,countrycode,district,population) values('sadd','ds','sdasd',(select population from world.country where code = 'ABW'));";
-        String sql = "insert into new_table(id) values((select id2 from new_table2 where id2 = 1));";
+        String sql = "insert into world.city(name,countrycode,district,population) values('sadd','ds','sdasd',(select population from world.country where code = 'ABW'));";
+        //String sql = "insert into new_table(id) values((select id2 from new_table2 where id2 = 1));";
         //String sql = "insert into new_table(id) values(1,'A',null,1.23);";
         Insert insert = (Insert) CCJSqlParserUtil.parse(sql);
         insert.getColumns();

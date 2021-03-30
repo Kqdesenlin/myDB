@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  */
 @Data
 @AllArgsConstructor
-public class BTree<K,V> {
+public class BTree<K,V> implements Cloneable{
 
     Logger logger = Logger.getLogger("log_" + BTree.class.getName());
     //默认度数t为2
@@ -399,4 +399,8 @@ public class BTree<K,V> {
         return null;
     }
 
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

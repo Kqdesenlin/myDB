@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class Entry<K,V> {
+public class Entry<K,V> implements Cloneable{
     private K key;
     private V value;
 
