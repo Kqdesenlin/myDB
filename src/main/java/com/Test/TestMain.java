@@ -2,7 +2,7 @@ package com.Test;
 
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.SelectResult;
-import com.domain.service.SqlToEntity;
+import com.domain.service.SqlService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -12,7 +12,7 @@ public class TestMain {
                 "   id int NOT NULL," +
                 "column2 varchar(10) not null unique" +
                 ")";
-        SqlToEntity sqlToEntity = new SqlToEntity();
+        SqlService sqlToEntity = new SqlService();
         OperateResult createResult = sqlToEntity.sqlMapToDML(createSql);
         log.info(createResult.toString());
         String insertSql1 = "insert into new_table values(1,'abc');";

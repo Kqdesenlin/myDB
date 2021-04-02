@@ -21,11 +21,11 @@ public class ExpressionVisitorWithBool implements ExpressionVisitor {
 
     private ColumnValueInfo columnValueInfo;
 
-    private int ifPass = 0;
+    private boolean ifPass;
 
     public ExpressionVisitorWithBool(ColumnValueInfo columnValueInfo) {
         this.columnValueInfo = columnValueInfo;
-        this.ifPass = 0;
+        this.ifPass = false;
     }
 
 
@@ -58,9 +58,9 @@ public class ExpressionVisitorWithBool implements ExpressionVisitor {
 
         }
         if (left.equals(right)) {
-            this.ifPass = 1;
+            this.ifPass = true;
         } else {
-            this.ifPass = 0;
+            this.ifPass = false;
         }
     }
 

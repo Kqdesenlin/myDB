@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
  * @date: 2021/3/19
  * @description:将sql的解析结果映射到domain的具体操作
  */
-public class SqlToEntity {
+public class SqlService {
 
-    Logger logger = Logger.getLogger("log_" + SqlToEntity.class.getSimpleName());
+    Logger logger = Logger.getLogger("log_" + SqlService.class.getSimpleName());
 
     DDLOperate ddlOperate = new DDLOperate();
 
