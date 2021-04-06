@@ -65,6 +65,7 @@ public class SqlService {
         if (statement instanceof Update){
         }
         if (statement instanceof Delete){
+            return sqlMapToDelete((Delete) statement);
         }
         if (statement instanceof CreateTable) {
             return sqlMapToCreate((CreateTable) statement);

@@ -2,12 +2,17 @@ package com.Test;
 
 public class ParentC {
 
-    public String par;
-
-    public ParentC(){
-        this.par = "a";
+    public static void main(String[] args){
+        Thread thread = new Thread() {
+            public void run() {
+                pong();
+            }
+        };
+        thread.run();
+        System.out.println("ping");
     }
-    void parentMethod(){
-        System.out.println("a");
+
+    static void pong(){
+        System.out.println("pong");
     }
 }

@@ -14,7 +14,7 @@ import net.sf.jsqlparser.statement.delete.Delete;
 public class DeleteTest {
 
     public static void main(String[] args)throws Exception {
-        String sql = "delete from (select * from new_table) where id = 1";
+        String sql = "delete from new_table t1,new_table2 t2 where t1.id = 1";
         Statement statement = CCJSqlParserUtil.parse(sql);
         if (statement instanceof Delete) {
             log.info("");

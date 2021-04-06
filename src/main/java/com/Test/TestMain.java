@@ -32,6 +32,9 @@ public class TestMain {
         OperateResult operateResult3 = sqlToEntity.sqlMapToDML(selectSql4);
         String selectSql5 = "select * from new_table where id =1";
         OperateResult operateResult4 = sqlToEntity.sqlMapToDML(selectSql5);
+        String deleteSql1 = "delete from new_table where id = 1";
+        OperateResult operateResult5 = sqlToEntity.sqlMapToDML(deleteSql1);
         log.info("");
+
     }
 }
