@@ -57,7 +57,7 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-aop:5.3.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:5.3.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:5.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.18.20" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.16" level="project" />
     <orderEntry type="library" name="Maven: com.github.jsqlparser:jsqlparser:4.0" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.9.1" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-maven-plugin:4.9.1" level="project" />
@@ -93,5 +93,6 @@
     <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:2.2" level="project" />
     <orderEntry type="library" name="Maven: org.hamcrest:hamcrest:2.2" level="project" />
     <orderEntry type="library" name="Maven: classworlds:classworlds:1.1-alpha-2" level="project" />
+    <orderEntry type="library" name="Maven: com.alibaba:fastjson:1.2.75" level="project" />
   </component>
 </module>

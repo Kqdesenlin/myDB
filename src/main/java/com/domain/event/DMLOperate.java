@@ -207,7 +207,7 @@ public class DMLOperate {
                 ExpressionVisitorWithBool expressionVisitorWithBool = new ExpressionVisitorWithBool(columnValueInfo);
                 expression.accept(expressionVisitorWithBool);
                 //把未通过的，不符合的添加到list
-                if (!expressionVisitorWithBool.isIfPass()) {
+                if (expressionVisitorWithBool.isIfPass()) {
                     whereFilterPK.add(entry.getKey());
                 }
             }

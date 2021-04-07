@@ -29,6 +29,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.statement.update.Update;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
  * @date: 2021/3/19
  * @description:将sql的解析结果映射到domain的具体操作
  */
+@Service
 public class SqlService {
 
     Logger logger = Logger.getLogger("log_" + SqlService.class.getSimpleName());
