@@ -8,6 +8,6 @@ import lombok.Data;
  * @description:
  */
 @Data
-public class SQLDto {
+    public class SQLDto {
     private String sql;
 }

@@ -2,7 +2,7 @@ package com.domain.Entity.result;
 
 
 public enum ResultCode {
-    ok("ok",1),warning("warning",2),error("error",3);
+    ok("ok",1),warning("warning",2),error("error",3),selectOk("selectOk",4);
 
     private String resultState;
     private int resultCode;

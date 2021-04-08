@@ -1,5 +1,6 @@
 package com.Infrastructure.Visitor;
 
+import com.Infrastructure.TableInfo.ColumnValueInfo;
 import lombok.Data;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
@@ -17,7 +18,19 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 @Data
 public class ExpressionVisitorWithRtn implements ExpressionVisitor {
 
+    //返回值
     private String rtn;
+
+    //列名和值的集合
+    private ColumnValueInfo columnValueInfo;
+
+    public ExpressionVisitorWithRtn() {
+
+    }
+
+    public ExpressionVisitorWithRtn(ColumnValueInfo columnValueInfo) {
+        this.columnValueInfo = columnValueInfo;
+    }
 
     @Override
     public void visit(BitwiseRightShift aThis) {

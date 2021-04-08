@@ -6,10 +6,13 @@ import com.Infrastructure.TableInfo.ColumnValueInfo;
 import com.Infrastructure.TableInfo.SelectItemInfo;
 import com.Infrastructure.TableInfo.TableInfo;
 import com.Infrastructure.Visitor.ExpressionVisitorWithBool;
+import com.Infrastructure.Visitor.ExpressionVisitorWithRtn;
+import com.Infrastructure.Visitor.FinalParserClass;
 import com.Infrastructure.Visitor.SelectVisitor.SelectItemVisitorWithRtn;
 import com.domain.Entity.DeleteEntity;
 import com.domain.Entity.InsertEntity;
 import com.domain.Entity.SelectEntity;
+import com.domain.Entity.UpdateEntity;
 import com.domain.Entity.bTree.BTree;
 import com.domain.Entity.bTree.Entry;
 import com.domain.Entity.result.OperateResult;
@@ -92,7 +95,7 @@ public class DMLOperate {
         }
         List<String> finalSelectColumn = selectItemInfoList.stream().map(SelectItemInfo::getItemName).collect(Collectors.toList());
 
-        return OperateResult.ok("查询成功", new SelectResult(finalSelectColumn, finalSelectResult));
+        return OperateResult.selectOk("查询成功", new SelectResult(finalSelectColumn, finalSelectResult));
 
     }
 //    public SelectResult selectTotalTable(SelectEntity selectEntity){
@@ -219,5 +222,57 @@ public class DMLOperate {
             bTree = new BTree<>();
         }
         return OperateResult.ok("删除成功");
+    }
+
+
+    /**
+     * 更新操作细节
+     * 当同时更新多个属性的时候，例如update table1 column1 = 1,column2 = column1
+     * 此时，更新顺序从左到右，如果右边读取到了左边的属性，按照修改后的读取，
+     * 如果左边读取到了右边更新的数据，按照表中原来的数据读取
+     * @param updateEntity
+     * @return
+     */
+    public OperateResult update(UpdateEntity updateEntity) {
+        TableInfo tempTableInfo = updateEntity.getTableInfo();
+        List<String> columnOrder = tempTableInfo.getRulesOrder();
+        List<String> columnUpdate = updateEntity.getColumnList();
+        List<Expression> expressionList = updateEntity.getExpressionList();
+        BTree<Integer,List<String>> bTree = tempTableInfo.getBTree();
+        Iterator<Entry<Integer, List<String>>> iterator = bTree.iterator();
+        Expression whereExp = updateEntity.getExpression();
+
+        //对where解析
+        while (iterator.hasNext()) {
+            Entry<Integer,List<String>> entry = iterator.next();
+            List<String> columnValue = entry.getValue();
+            //创建集合类，方便修改
+            ColumnValueInfo columnValueInfo = new ColumnValueInfo(columnOrder, columnValue);
+            //构建行对象，然后注入到visitor中
+            ExpressionVisitorWithBool expressionVisitorWithBool = new ExpressionVisitorWithBool(columnValueInfo);
+            whereExp.accept(expressionVisitorWithBool);
+            //如果通过判断，则进行update修改
+            if (expressionVisitorWithBool.isIfPass()) {
+                for (int var1 = 0; var1<expressionList.size();++var1) {
+                    String updateColumn = columnUpdate.get(var1);
+                    String updateValue = "";
+                    //第一种情况，如果是一个常量或者已知量，则直接获取,不然需要解析获取
+                    Expression tempExp = expressionList.get(var1);
+                    if (FinalParserClass.ifConstant(tempExp)) {
+                        updateValue = tempExp.toString();
+                    } else if (FinalParserClass.ifColumn(tempExp)) {
+                        updateValue = columnValueInfo.findValueByName(tempExp.toString());
+                    } else {
+                        ExpressionVisitorWithRtn visitorWithRtn = new ExpressionVisitorWithRtn(columnValueInfo);
+                        tempExp.accept(visitorWithRtn);
+                        updateValue = visitorWithRtn.getRtn();
+                    }
+                    columnValueInfo.updateValueByName(updateColumn,updateValue);
+                }
+                //把最终解析完的值替换掉
+                entry.setValue(columnValueInfo.getColumnValueList());
+            }
+        }
+        return OperateResult.ok("修改成功");
     }
 }

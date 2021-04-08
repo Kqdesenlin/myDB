@@ -1,8 +1,10 @@
 package com.Infrastructure.Visitor;
 
 import com.Infrastructure.TableInfo.TableInfo;
+import com.domain.Entity.result.OperateResult;
 import com.domain.repository.TableConstant;
 import com.domain.service.SubSelectToTempTable;
+import lombok.Getter;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
 
@@ -16,6 +18,9 @@ public class FromItemVisitorWithRtn implements FromItemVisitor {
     //作为解析之后的返回
     private TableInfo tableInfo;
 
+    @Getter
+    private OperateResult errorResult;
+
     public TableInfo getTableInfo() {
         return this.tableInfo;
     }
@@ -26,8 +31,8 @@ public class FromItemVisitorWithRtn implements FromItemVisitor {
 
         try {
             this.tableInfo = tableInfo.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            errorResult = OperateResult.error("table not exist or table clone failed",e.getMessage());
         }
     }
 

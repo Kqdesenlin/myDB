@@ -46,6 +46,7 @@ public class DDLOperate {
                 .collect(Collectors.toList());
         TableInfo newTable = new TableInfo(tableName,new BTree<Integer,List<String>>(),columnInfoList,rulesOrder);
         TableConstant.tableMap.put(tableName,newTable);
+        rtn = OperateResult.ok("建表成功");
         return rtn;
 
     }

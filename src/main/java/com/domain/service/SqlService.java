@@ -6,10 +6,12 @@ import com.Infrastructure.Visitor.SelectVisitor.ItemsListVisitorWithList;
 import com.domain.Entity.DeleteEntity;
 import com.domain.Entity.InsertEntity;
 import com.domain.Entity.SelectEntity;
+import com.domain.Entity.UpdateEntity;
 import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.common.TableInfoEntity;
 import com.domain.Entity.createTable.CreateTableEntity;
 import com.domain.Entity.result.OperateResult;
+import com.domain.Entity.result.ResultCode;
 import com.domain.event.DDLOperate;
 import com.domain.event.DMLOperate;
 import com.domain.repository.TableConstant;
@@ -19,6 +21,7 @@ import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.Statements;
 import net.sf.jsqlparser.statement.create.table.ColDataType;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -50,14 +53,27 @@ public class SqlService {
 
     DMLOperate dmlOperate = new DMLOperate();
 
-    public OperateResult sqlMapToDML(String sql) throws JSQLParserException {
-        Statement statement = null;
+    public List<OperateResult> mutilSqlMapToState(String mutilSql) {
+        Statements statements = null;
+        List<OperateResult> resultList = new ArrayList<>();
         try {
-            statement = CCJSqlParserUtil.parse(sql);
+            statements = CCJSqlParserUtil.parseStatements(mutilSql);
+            List<Statement> statementList = statements.getStatements();
+            for (int var1 = 0;var1 < statementList.size();++var1) {
+                OperateResult result = stateMapToDML(statementList.get(var1));
+                resultList.add(result);
+                if (!ResultCode.ok.equals(result.getCode())){
+                    break;
+                }
+            }
         } catch (JSQLParserException e) {
-            e.printStackTrace();
+            OperateResult errorResult = OperateResult.error("parser failed",e.getMessage());
+            resultList.add(errorResult);
         }
-        logger.info(sql);
+        return resultList;
+    }
+    public OperateResult stateMapToDML(Statement statement) throws JSQLParserException {
+
         if (statement instanceof Select){
             return sqlMapToSelect((Select) statement);
         }
@@ -65,6 +81,7 @@ public class SqlService {
             return sqlMapToInsert((Insert) statement);
         }
         if (statement instanceof Update){
+            return sqlMapToUpdate((Update) statement);
         }
         if (statement instanceof Delete){
             return sqlMapToDelete((Delete) statement);
@@ -149,8 +166,23 @@ public class SqlService {
         return operateResult;
     }
 
-    public OperateResult sqlMapToUpdate() {
-        return null;
+    public OperateResult sqlMapToUpdate(Update update) {
+        UpdateEntity entity = new UpdateEntity();
+        //加表名
+        TableInfo tempTableInfo = TableConstant.getTableByName(update.getTable().getName());
+        entity.setTableInfo(tempTableInfo);
+        //加列名
+        List<String> columnList = update.getColumns().stream().
+                map(Column::getColumnName).collect(Collectors.toList());
+        entity.setColumnList(columnList);
+        //加赋值
+        List<Expression> expressionList = update.getExpressions();
+        entity.setExpressionList(expressionList);
+        //加where
+        Expression expression = update.getWhere();
+        entity.setExpression(expression);
+        OperateResult result = dmlOperate.update(entity);
+        return result;
     }
 
     public OperateResult sqlMapToSelect(Select select){
@@ -162,6 +194,9 @@ public class SqlService {
         FromItemVisitorWithRtn visitorWithRtn = new FromItemVisitorWithRtn();
         fromItem.accept(visitorWithRtn);
         TableInfo tempTableInfo = visitorWithRtn.getTableInfo();
+        if (null == tempTableInfo) {
+            return visitorWithRtn.getErrorResult();
+        }
         selectEntity.setTableInfo(tempTableInfo);
         //whereExpression添加
         Expression whereExpression = plainSelect.getWhere();

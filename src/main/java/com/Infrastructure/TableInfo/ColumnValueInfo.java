@@ -27,4 +27,12 @@ public class ColumnValueInfo {
         }
         return "";
     }
+
+    public void updateValueByName(String name,String value) {
+        for (int var2 = 0;var2<columnNameList.size();++var2) {
+            if (columnNameList.get(var2).equals(name)) {
+                columnValueList.set(var2,value);
+            }
+        }
+    }
 }

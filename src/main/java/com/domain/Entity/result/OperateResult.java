@@ -24,6 +24,9 @@ public class OperateResult {
         return new OperateResult(info,ResultCode.ok,rtn);
     }
 
+    public static OperateResult selectOk(String info,SelectResult result) {
+        return new OperateResult(info,ResultCode.selectOk,result);
+    }
     public static OperateResult error(String info){
         return new OperateResult(info,ResultCode.error,null);
     }

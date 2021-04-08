@@ -1,17 +1,11 @@
 package com.Test;
 
-import com.domain.event.sqlParser.SelectParser;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
-import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.Statements;
 
-import java.util.List;
-import java.util.logging.Logger;
-
+@Slf4j
 public class TestParser {
-
-    private static Logger logger = Logger.getLogger("log_" + TestParser.class.getName());
 
     public static void main(String[] args)throws Exception{
 //        MainParser mainParser = new MainParser();
@@ -37,17 +31,9 @@ public class TestParser {
 //        String sql = "select * from website where id = 1 or id =2;";
 //        logger.info(selectParser.getWhere(sql).toString());
 ////        Addition
-        String sql = "create table C(c#  char(8) primary key not null,cname   char(10),teacher char(20));";
-        Statement statement = CCJSqlParserUtil.parse(sql);
-        if (statement instanceof CreateTable) {
-            logger.info(statement.toString());
-            List<ColumnDefinition> columnDefinitions = ((CreateTable) statement).getColumnDefinitions();
-            for (ColumnDefinition columnDefinition : columnDefinitions) {
-                logger.info(columnDefinition.getColumnName());
-                logger.info(columnDefinition.getColumnSpecs().toString());
-                logger.info(columnDefinition.getColDataType().toString());
-            }
-        }
+        String mutisql = "insert into new_table values(1,'abc');";
+        Statements statements =  CCJSqlParserUtil.parseStatements(mutisql);
 
+        log.info("");
     }
 }
