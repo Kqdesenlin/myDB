@@ -1,7 +1,6 @@
 package com.Infrastructure.Visitor;
 
 import com.Infrastructure.TableInfo.ColumnValueInfo;
-import com.Infrastructure.Visitor.FinalExpression.FinalBinaryExpression;
 import lombok.Data;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
@@ -10,6 +9,8 @@ import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
+
+import java.util.List;
 
 /**
  * @author: zhangQY
@@ -38,25 +39,9 @@ public class ExpressionVisitorWithBool implements ExpressionVisitor {
 
     @Override
     public void visit(EqualsTo equalsTo) {
-        FinalBinaryExpression finalBinaryExpression = new FinalBinaryExpression();
-        Expression leftExp  = equalsTo.getLeftExpression();
-        String left = "";
-        Expression rightExp = equalsTo.getRightExpression();
-        String right = "";
-        if (FinalParserClass.ifColumn(leftExp)) {
-            left = columnValueInfo.findValueByName(leftExp.toString());
-        } else if (FinalParserClass.ifConstant(leftExp)){
-            left = leftExp.toString();
-        } else {
-
-        }
-        if (FinalParserClass.ifColumn(rightExp)) {
-            right = columnValueInfo.findValueByName(rightExp.toString());
-        } else if (FinalParserClass.ifConstant(rightExp)) {
-            right = rightExp.toString();
-        } else {
-
-        }
+        List<String> leftAndRight = BinaryExpressionToBinaryString.parser(equalsTo,columnValueInfo);
+        String left = leftAndRight.get(0);
+        String right = leftAndRight.get(1);
         if (left.equals(right)) {
             this.ifPass = true;
         } else {
@@ -181,12 +166,18 @@ public class ExpressionVisitorWithBool implements ExpressionVisitor {
 
     @Override
     public void visit(GreaterThan greaterThan) {
-
+        List<String> leftAndRight = BinaryExpressionToBinaryString.parser(greaterThan,columnValueInfo);
+        String left = leftAndRight.get(0);
+        String right = leftAndRight.get(1);
+        this.ifPass = left.compareTo(right) > 0;
     }
 
     @Override
     public void visit(GreaterThanEquals greaterThanEquals) {
-
+        List<String> leftAndRight = BinaryExpressionToBinaryString.parser(greaterThanEquals,columnValueInfo);
+        String left = leftAndRight.get(0);
+        String right = leftAndRight.get(1);
+        this.ifPass = left.compareTo(right) >= 0;
     }
 
     @Override
@@ -216,17 +207,26 @@ public class ExpressionVisitorWithBool implements ExpressionVisitor {
 
     @Override
     public void visit(MinorThan minorThan) {
-
+        List<String> leftAndRight = BinaryExpressionToBinaryString.parser(minorThan,columnValueInfo);
+        String left = leftAndRight.get(0);
+        String right = leftAndRight.get(1);
+        this.ifPass = left.compareTo(right) < 0;
     }
 
     @Override
     public void visit(MinorThanEquals minorThanEquals) {
-
+        List<String> leftAndRight = BinaryExpressionToBinaryString.parser(minorThanEquals,columnValueInfo);
+        String left = leftAndRight.get(0);
+        String right = leftAndRight.get(1);
+        this.ifPass = left.compareTo(right) <= 0;
     }
 
     @Override
     public void visit(NotEqualsTo notEqualsTo) {
-
+        List<String> leftAndRight = BinaryExpressionToBinaryString.parser(notEqualsTo,columnValueInfo);
+        String left = leftAndRight.get(0);
+        String right = leftAndRight.get(1);
+        this.ifPass = !left.equals(right);
     }
 
     @Override

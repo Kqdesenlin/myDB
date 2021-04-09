@@ -43,8 +43,8 @@ public class DMLOperate {
         BTree<Integer, List<String>> bTree = tempTableInfo.getBTree();
         Iterator<Entry<Integer, List<String>>> iterator = bTree.iterator();
         Expression expression = selectEntity.getWhereExpression();
+        List<Integer> whereFilterPK = new ArrayList<>();
         if (null != expression) {
-            List<Integer> whereFilterPK = new ArrayList<>();
             //获取每一行
             while (iterator.hasNext()) {
                 Entry<Integer, List<String>> entry = iterator.next();
@@ -57,10 +57,6 @@ public class DMLOperate {
                 if (!expressionVisitorWithBool.isIfPass()) {
                     whereFilterPK.add(entry.getKey());
                 }
-            }
-            //删除不符合条件的值
-            for (Integer filterPK : whereFilterPK) {
-                bTree.delete(filterPK);
             }
         }
 
@@ -81,6 +77,10 @@ public class DMLOperate {
         Iterator<Entry<Integer, List<String>>> getIterator = bTree.iterator();
         while (getIterator.hasNext()) {
             Entry<Integer, List<String>> entry = getIterator.next();
+            int key = entry.getKey();
+            if (whereFilterPK.contains(key)){
+                continue;
+            }
             List<String> value = entry.getValue();
             List<String> newValue = new ArrayList<>();
             for (int var1 = 0; var1 < selectItemInfoList.size(); var1++) {

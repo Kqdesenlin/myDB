@@ -5,6 +5,7 @@ package com.domain.Entity.bTree;
 import com.domain.Entity.ComplexSelectEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -13,6 +14,7 @@ import java.util.logging.Logger;
  * @author xumg
  * @create 2020-10-15 9:22
  */
+@Slf4j
 @Data
 @AllArgsConstructor
 public class BTree<K,V> implements Cloneable{
@@ -342,6 +344,7 @@ public class BTree<K,V> implements Cloneable{
         private Queue<Node<K, V>> queue;
 
         public BTreeIterator(){
+            log.info(root.toString());
             this.node = root;
             this.index = 0;
             this.queue = new LinkedList<>();

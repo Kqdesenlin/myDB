@@ -1,9 +1,13 @@
 package com.application.api;
 
+import com.Infrastructure.Service.TypeConverUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.application.dto.SQLDto;
+import com.application.dto.SelectResultDto;
 import com.domain.Entity.result.OperateResult;
+import com.domain.Entity.result.ResultCode;
+import com.domain.Entity.result.SelectResult;
 import com.domain.service.SqlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +48,13 @@ public class SQLController {
                 JSONObject obj = new JSONObject();
                 obj.put("info",result.getInfo());
                 obj.put("code",result.getCode());
-                obj.put("rtn",result.getRtn());
+                if (ResultCode.selectOk.equals(result.getCode())) {
+                    SelectResult select = (SelectResult) result.getRtn();
+                    SelectResultDto dto = TypeConverUtils.selectResultToDto(select);
+                    obj.put("rtn",dto);
+                } else {
+                    obj.put("rtn",result.getRtn());
+                }
                 array.add(obj);
             }
             return array;

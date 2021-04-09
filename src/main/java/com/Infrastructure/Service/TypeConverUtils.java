@@ -1,6 +1,9 @@
 package com.Infrastructure.Service;
 
+import com.alibaba.fastjson.JSONObject;
+import com.application.dto.SelectResultDto;
 import com.domain.Entity.InsertEntity;
+import com.domain.Entity.result.SelectResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,23 @@ public class TypeConverUtils {
             }
         }
         return rtn;
+    }
+
+
+    public static SelectResultDto selectResultToDto(SelectResult result) {
+        SelectResultDto selectDto = new SelectResultDto();
+        List<String> columnlist = result.getRules();
+        selectDto.setColumnTemplate(columnlist);
+        List<JSONObject> tempList = new ArrayList<>();
+        for (List<String> selectRow : result.getItems()) {
+            JSONObject tempObj = new JSONObject();
+            for (int var1 = 0; var1<selectRow.size();++var1) {
+                tempObj.put(columnlist.get(var1),selectRow.get(var1));
+            }
+            tempList.add(tempObj);
+        }
+        selectDto.setRowTemplate(tempList);
+        return selectDto;
     }
 
     //字符串大写转换

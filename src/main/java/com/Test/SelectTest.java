@@ -42,7 +42,8 @@ public class SelectTest {
        //String sql = "select 1,id,(select * from new_table2 where id2 = id) from new_table;";
         // *是allcolumn
         //String sql = "select * from new_table;";
-        String sql = "select t1.*,t2.* from new_table t1,new_table t2;";
+        String sql = "select * from new_table where id=(1+2);";
+        //String sql = "select t1.*,t2.* from new_table t1,new_table t2;";
         Select select = (Select) CCJSqlParserUtil.parse(sql);
         PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
         SelectBody selectBody = select.getSelectBody();
