@@ -118,7 +118,7 @@ public class SqlService {
             }
             columnInfoEntity.setColumnArguments(argument);
             //设置特殊参数
-            if (columnDefinition.getColumnSpecs().size()>0) {
+            if (null != columnDefinition.getColumnSpecs() && columnDefinition.getColumnSpecs().size()>0) {
                 columnInfoEntity.setColumnSpecs(columnDefinition.getColumnSpecs()
                         .stream().map(String::toUpperCase).collect(Collectors.toList()));
             }

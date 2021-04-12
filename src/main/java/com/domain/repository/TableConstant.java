@@ -23,4 +23,5 @@ public class TableConstant {
     public static TableInfo getTableByName(String name){
         return tableMap.get(name);
     }
+
 }

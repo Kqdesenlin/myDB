@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.application.dto.SQLDto;
 import com.application.dto.SelectResultDto;
+import com.application.dto.FakeNode;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
 import com.domain.Entity.result.SelectResult;
+import com.domain.service.DataService;
 import com.domain.service.SqlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,8 @@ public class SQLController {
 //        ResultDto resultDto = sqlToEntity.sqlMapToDML(sql);
 //        return resultDto;
 //    }
+    @Autowired
+    private DataService dataService;
 
     @CrossOrigin
     @PostMapping("/sql")
@@ -62,6 +66,15 @@ public class SQLController {
             e.printStackTrace();
         }
         return array;
+    }
+
+    @CrossOrigin
+    @GetMapping("/data")
+    public JSONArray getTableInfo() {
+        JSONArray jsonArray = new JSONArray();
+        List<FakeNode> list = dataService.getTableInfoDto();
+        jsonArray.addAll(list);
+        return jsonArray;
     }
 
 

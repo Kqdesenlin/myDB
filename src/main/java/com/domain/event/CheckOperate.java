@@ -58,26 +58,29 @@ public class CheckOperate {
             }
             //特殊条件，如not null,unique校验
             List<String> dataSpecies = columnInfoEntity.getColumnSpecs();
-            for (int var1 = 0; var1<dataSpecies.size();) {
-                String first = dataSpecies.get(var1).toUpperCase(Locale.ROOT);
-                ColumnSpecsEnums columnSpecsEnums = ColumnSpecsEnums.findTypeByFirst(first.toUpperCase(Locale.ROOT));
-                if (null == columnSpecsEnums) {
-                    return OperateResult.error("关键词校验未通过," + first + "未知条件");
+            if (null != dataSpecies) {
+                for (int var1 = 0; var1<dataSpecies.size();) {
+                    String first = dataSpecies.get(var1).toUpperCase(Locale.ROOT);
+                    ColumnSpecsEnums columnSpecsEnums = ColumnSpecsEnums.findTypeByFirst(first.toUpperCase(Locale.ROOT));
+                    if (null == columnSpecsEnums) {
+                        return OperateResult.error("关键词校验未通过," + first + "未知条件");
+                    }
+                    int length = columnSpecsEnums.getLength();
+                    if ((var1 + length)>dataSpecies.size()) {
+                        return OperateResult.error("关键词校验未通过," +first + "未知条件" );
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    for (int var2 = 0;var2<length;var2++) {
+                        sb.append(dataSpecies.get(var1+var2));
+                    }
+                    if (!columnSpecsEnums.getTotal().equals(sb.toString())) {
+                        return OperateResult.error("关键词校验未通过," + sb.toString() + "未知条件");
+                    }
+                    var1 += length;
+                    columnInfo.addSpecs(columnSpecsEnums);
                 }
-                int length = columnSpecsEnums.getLength();
-                if ((var1 + length)>dataSpecies.size()) {
-                    return OperateResult.error("关键词校验未通过," +first + "未知条件" );
-                }
-                StringBuilder sb = new StringBuilder();
-                for (int var2 = 0;var2<length;var2++) {
-                    sb.append(dataSpecies.get(var1+var2));
-                }
-                if (!columnSpecsEnums.getTotal().equals(sb.toString())) {
-                    return OperateResult.error("关键词校验未通过," + sb.toString() + "未知条件");
-                }
-                var1 += length;
-                columnInfo.addSpecs(columnSpecsEnums);
             }
+
             columnInfoList.add(columnInfo);
         }
         return OperateResult.ok("关键词校验通过",columnInfoList);
