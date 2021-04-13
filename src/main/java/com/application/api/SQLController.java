@@ -3,9 +3,9 @@ package com.application.api;
 import com.Infrastructure.Service.TypeConverUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.application.dto.FakeNode;
 import com.application.dto.SQLDto;
 import com.application.dto.SelectResultDto;
-import com.application.dto.FakeNode;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
 import com.domain.Entity.result.SelectResult;
@@ -45,9 +45,10 @@ public class SQLController {
         if (null == sql) {
             return array;
         }
-        log.info(sql.getSql());
+        String input = sql.getSql().replaceAll("\r|\n","");
+        log.info(input);
         try {
-            List<OperateResult> or = sqlService.mutilSqlMapToState(sql.getSql());
+                List<OperateResult> or = sqlService.mutilSqlMapToState(input);
             for (OperateResult result : or) {
                 JSONObject obj = new JSONObject();
                 obj.put("info",result.getInfo());

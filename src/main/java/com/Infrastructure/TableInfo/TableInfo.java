@@ -32,7 +32,7 @@ public class TableInfo implements Cloneable{
     }
 
     @Override
-    public TableInfo clone() throws CloneNotSupportedException {
-        return (TableInfo)super.clone();
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

@@ -74,7 +74,7 @@ public class ExpressionVisitorWithRtn implements ExpressionVisitor {
 
     @Override
     public void visit(LongValue longValue) {
-
+        this.rtn = longValue.getStringValue();
     }
 
     @Override

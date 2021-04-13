@@ -15,6 +15,7 @@ import com.domain.Entity.SelectEntity;
 import com.domain.Entity.UpdateEntity;
 import com.domain.Entity.bTree.BTree;
 import com.domain.Entity.bTree.Entry;
+import com.domain.Entity.common.LimitPart;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
 import com.domain.Entity.result.SelectResult;
@@ -25,44 +26,31 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class DMLOperate {
 
     private CheckOperate checkOperate = new CheckOperate();
 
-    private static Logger logger = Logger.getLogger("log_dmlOperate");
-
     public OperateResult select(SelectEntity selectEntity) {
         //获取表
-        TableInfo tempTableInfo = selectEntity.getTableInfo();
+        TableInfo tempTableInfo = null;
+        try {
+            tempTableInfo = selectEntity.getTableInfo().clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
         List<ColumnInfo> columnInfoList = tempTableInfo.getColumnInfoList();
-        //expression解析
         List<String> columnOrder = tempTableInfo.getRulesOrder();
-        BTree<Integer, List<String>> bTree = tempTableInfo.getBTree();
-        Iterator<Entry<Integer, List<String>>> iterator = bTree.iterator();
-        Expression expression = selectEntity.getWhereExpression();
-        List<Integer> whereFilterPK = new ArrayList<>();
-        if (null != expression) {
-            //获取每一行
-            while (iterator.hasNext()) {
-                Entry<Integer, List<String>> entry = iterator.next();
-                List<String> columnValue = entry.getValue();
-                ColumnValueInfo columnValueInfo = new ColumnValueInfo(columnOrder, columnValue);
-                //构建行对象，然后注入到visitor中
-                ExpressionVisitorWithBool expressionVisitorWithBool = new ExpressionVisitorWithBool(columnValueInfo);
-                expression.accept(expressionVisitorWithBool);
-                //把未通过的，不符合的添加到list
-                if (!expressionVisitorWithBool.isIfPass()) {
-                    whereFilterPK.add(entry.getKey());
-                }
-            }
+        //expression解析
+        if (null != selectEntity.getWhereExpression()) {
+            tempTableInfo = WhereOperate.where(tempTableInfo, selectEntity.getWhereExpression());
         }
 
         //select ...from 之间，对最后得到的值进行筛选
         List<SelectItem> selectItemList = selectEntity.getSelectItemList();
         List<SelectItemInfo> selectItemInfoList = new ArrayList<>();
+        BTree<Integer,List<String>> bTree = tempTableInfo.getBTree();
         for (int var1 = 0; var1 < selectItemList.size(); var1++) {
             SelectItem selectItem = selectItemList.get(var1);
             //需要返回一个list，list内是多条item，例如,item可能是对应的表中的值，也可能是常量
@@ -78,9 +66,7 @@ public class DMLOperate {
         while (getIterator.hasNext()) {
             Entry<Integer, List<String>> entry = getIterator.next();
             int key = entry.getKey();
-            if (whereFilterPK.contains(key)){
-                continue;
-            }
+
             List<String> value = entry.getValue();
             List<String> newValue = new ArrayList<>();
             for (int var1 = 0; var1 < selectItemInfoList.size(); var1++) {
@@ -92,6 +78,18 @@ public class DMLOperate {
                 }
             }
             finalSelectResult.add(newValue);
+        }
+        //limit
+        LimitPart limitPart = selectEntity.getLimitPart();
+        if (null != limitPart) {
+            OperateResult checkResult = checkOperate.ifLimitLegal(limitPart);
+            if (!ResultCode.ok.equals(checkResult.getCode())) {
+                return checkResult;
+            }
+            int begin = (int) ((List)checkResult.getRtn()).get(0);
+            int end = (int)((List)checkResult.getRtn()).get(1);
+            LimitOperate limit = new LimitOperate();
+            finalSelectResult = limit.limit(finalSelectResult,begin,end);
         }
         List<String> finalSelectColumn = selectItemInfoList.stream().map(SelectItemInfo::getItemName).collect(Collectors.toList());
 

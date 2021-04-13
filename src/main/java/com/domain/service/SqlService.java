@@ -8,6 +8,7 @@ import com.domain.Entity.InsertEntity;
 import com.domain.Entity.SelectEntity;
 import com.domain.Entity.UpdateEntity;
 import com.domain.Entity.common.ColumnInfoEntity;
+import com.domain.Entity.common.LimitPart;
 import com.domain.Entity.common.TableInfoEntity;
 import com.domain.Entity.createTable.CreateTableEntity;
 import com.domain.Entity.result.OperateResult;
@@ -27,10 +28,7 @@ import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.select.FromItem;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.update.Update;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +60,7 @@ public class SqlService {
             for (int var1 = 0;var1 < statementList.size();++var1) {
                 OperateResult result = stateMapToDML(statementList.get(var1));
                 resultList.add(result);
-                if (!ResultCode.ok.equals(result.getCode())){
+                if (!ResultCode.ok.equals(result.getCode())&&!ResultCode.selectOk.equals(result.getCode())){
                     break;
                 }
             }
@@ -204,6 +202,14 @@ public class SqlService {
         //ItemList添加
         List<SelectItem> selectItemList = plainSelect.getSelectItems();
         selectEntity.setSelectItemList(selectItemList);
+
+        //limit添加
+        if (null != plainSelect.getLimit()) {
+            Limit limit = plainSelect.getLimit();
+            LimitPart limitPart = new LimitPart(limit.getOffset(),limit.getRowCount());
+            selectEntity.setLimitPart(limitPart);
+        }
+
         return dmlOperate.select(selectEntity);
     }
 

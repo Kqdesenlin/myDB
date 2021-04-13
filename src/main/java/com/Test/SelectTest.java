@@ -1,19 +1,20 @@
 package com.Test;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.select.*;
-
-import java.util.List;
-import java.util.logging.Logger;
+import net.sf.jsqlparser.statement.select.Limit;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectBody;
 
 /**
  * @author: zhangQY
  * @date: 2021/3/24
  * @description:
  */
+@Slf4j
 public class SelectTest {
 
-    public static Logger logger = Logger.getLogger("log_" + SelectTest.class.getSimpleName());
 
     public static void main(String[] args)throws Exception {
         //String sql = "select * from new_table n ,new_table2 n2 where n.id = n2.id2;";
@@ -42,29 +43,14 @@ public class SelectTest {
        //String sql = "select 1,id,(select * from new_table2 where id2 = id) from new_table;";
         // *是allcolumn
         //String sql = "select * from new_table;";
-        String sql = "select * from new_table where id=(1+2);";
+        String sql = "select * from new_table where id=1 limit 1,1;";
         //String sql = "select t1.*,t2.* from new_table t1,new_table t2;";
         Select select = (Select) CCJSqlParserUtil.parse(sql);
         PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
         SelectBody selectBody = select.getSelectBody();
-        List<SelectItem> selectItemList = ((PlainSelect)selectBody).getSelectItems();
-        for (SelectItem selectItem : selectItemList) {
-            selectItem.accept(new SelectItemVisitor() {
-                @Override
-                public void visit(AllColumns allColumns) {
-                    logger.info("this is allColumns");
-                }
-
-                @Override
-                public void visit(AllTableColumns allTableColumns) {
-                    logger.info("this is allTableColumns");
-                }
-
-                @Override
-                public void visit(SelectExpressionItem selectExpressionItem) {
-                    logger.info("this is selectExpressionItem");
-                }
-            });
+        if (null != plainSelect.getLimit()){
+            Limit limit = plainSelect.getLimit();
+            log.info("");
         }
     }
 }

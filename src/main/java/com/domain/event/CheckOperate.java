@@ -1,16 +1,20 @@
 package com.domain.event;
 
 import com.Infrastructure.TableInfo.ColumnInfo;
+import com.Infrastructure.Visitor.ExpressionVisitorWithRtn;
 import com.domain.Entity.InsertEntity;
 import com.domain.Entity.bTree.Entry;
 import com.domain.Entity.common.ColumnInfoEntity;
+import com.domain.Entity.common.LimitPart;
 import com.domain.Entity.enums.ColumnSpecsEnums;
 import com.domain.Entity.enums.ColumnTypeEnums;
 import com.domain.Entity.enums.ColumnTypeLengthEnums;
 import com.domain.Entity.result.OperateResult;
 import com.domain.repository.TableConstant;
+import net.sf.jsqlparser.expression.Expression;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -166,5 +170,25 @@ public class CheckOperate {
     public boolean ifString(String StringType){
         String pattern = "[a-z|A-Z]+";
         return Pattern.matches(pattern,StringType);
+    }
+
+    public OperateResult ifLimitLegal(LimitPart limitPart) {
+        Expression offset = limitPart.getOffset();
+        Integer off = 0;
+        if (null != offset) {
+            ExpressionVisitorWithRtn visitor = new ExpressionVisitorWithRtn();
+            offset.accept(visitor);
+            off = Integer.valueOf(visitor.getRtn());
+        }
+        Expression rowcount = limitPart.getRowcount();
+        Integer count = 0;
+        if (null != rowcount) {
+            ExpressionVisitorWithRtn visitor = new ExpressionVisitorWithRtn();
+            rowcount.accept(visitor);
+            count = Integer.valueOf(visitor.getRtn());
+        } else {
+            return OperateResult.error("limit缺少关键参数rowcount");
+        }
+        return OperateResult.ok("limit校验通过", Arrays.asList(off,count));
     }
 }
