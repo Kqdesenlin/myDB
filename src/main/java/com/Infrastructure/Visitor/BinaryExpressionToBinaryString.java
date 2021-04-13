@@ -3,6 +3,8 @@ package com.Infrastructure.Visitor;
 import com.Infrastructure.TableInfo.ColumnValueInfo;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.schema.Column;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,18 +22,18 @@ public class BinaryExpressionToBinaryString {
         Expression rightExp = expression.getRightExpression();
         String right = "";
         if (FinalParserClass.ifColumn(leftExp)) {
-            left = columnValueInfo.findValueByName(leftExp.toString());
+            left = columnValueInfo.findValueByName(((Column)leftExp).getColumnName());
         } else if (FinalParserClass.ifConstant(leftExp)){
-            left = leftExp.toString();
+            left = ((StringValue)leftExp).getValue();
         } else {
             ExpressionVisitorWithRtn visitorWithRtn = new ExpressionVisitorWithRtn(columnValueInfo);
             leftExp.accept(visitorWithRtn);
             left = visitorWithRtn.getRtn();
         }
         if (FinalParserClass.ifColumn(rightExp)) {
-            right = columnValueInfo.findValueByName(rightExp.toString());
+            right = columnValueInfo.findValueByName(((Column)rightExp).getColumnName());
         } else if (FinalParserClass.ifConstant(rightExp)) {
-            right = rightExp.toString();
+            right = ((StringValue)rightExp).getValue();
         } else {
             ExpressionVisitorWithRtn visitorWithRtn = new ExpressionVisitorWithRtn(columnValueInfo);
             rightExp.accept(visitorWithRtn);

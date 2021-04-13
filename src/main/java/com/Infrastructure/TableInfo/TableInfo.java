@@ -19,6 +19,8 @@ public class TableInfo implements Cloneable{
     List<String> rulesOrder;
     public AtomicInteger primaryKey = new AtomicInteger(1);
 
+    public TableInfo() {}
+
     public TableInfo(BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder) {
         this.bTree = bTree;
         this.columnInfoList = columnInfoList;

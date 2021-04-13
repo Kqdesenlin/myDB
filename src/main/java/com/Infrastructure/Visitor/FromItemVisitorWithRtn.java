@@ -7,6 +7,7 @@ import com.domain.service.SubSelectToTempTable;
 import lombok.Getter;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
+import org.apache.commons.beanutils.BeanUtils;
 
 /**
  * @author: zhangQY
@@ -30,8 +31,9 @@ public class FromItemVisitorWithRtn implements FromItemVisitor {
         TableInfo tableInfo = TableConstant.getTableByName(tableName.getName());
 
         try {
-            this.tableInfo = tableInfo.clone();
+            this.tableInfo = (TableInfo) BeanUtils.cloneBean(tableInfo);
         } catch (Exception e) {
+            e.printStackTrace();
             errorResult = OperateResult.error("table not exist or table clone failed",e.getMessage());
         }
     }
@@ -40,9 +42,9 @@ public class FromItemVisitorWithRtn implements FromItemVisitor {
     public void visit(SubSelect subSelect){
         TableInfo tableInfo = SubSelectToTempTable.subSelectToTempTable(subSelect);
         try {
-            TableInfo newTableInfo = tableInfo.clone();
+            TableInfo newTableInfo = (TableInfo) BeanUtils.cloneBean(tableInfo);
             this.tableInfo = newTableInfo;
-        } catch (CloneNotSupportedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

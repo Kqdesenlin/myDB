@@ -22,6 +22,7 @@ import com.domain.Entity.result.SelectResult;
 import com.domain.repository.TableConstant;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.SelectItem;
+import org.apache.commons.beanutils.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,8 +37,8 @@ public class DMLOperate {
         //获取表
         TableInfo tempTableInfo = null;
         try {
-            tempTableInfo = selectEntity.getTableInfo().clone();
-        } catch (CloneNotSupportedException e) {
+            tempTableInfo = (TableInfo) BeanUtils.cloneBean(selectEntity.getTableInfo());
+        } catch (Exception e) {
             e.printStackTrace();
         }
         List<ColumnInfo> columnInfoList = tempTableInfo.getColumnInfoList();
