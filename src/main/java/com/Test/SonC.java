@@ -16,8 +16,7 @@ public class SonC {
     }
 
     public static void main(String[] args) throws Exception {
-        SonC c = new SonC();
-        c.setInner(new inner("abxc"));
+
     }
 
 }

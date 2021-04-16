@@ -13,7 +13,7 @@ import java.util.List;
  * @date: 2021/4/13
  * @description: 对传入的table进行limit操作，最终返回一个过滤之后的table
  */
-public class LimitOperate {
+public class moduleOperate {
 
     /**
      * 暂时采用删除的方式，进行过滤

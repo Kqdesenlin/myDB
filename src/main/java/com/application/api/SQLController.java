@@ -78,5 +78,12 @@ public class SQLController {
         return jsonArray;
     }
 
+    @CrossOrigin
+    @GetMapping("/updatedata")
+    public JSONArray getUpdateTableInfo() {
+        return dataService.getTableAndColumn();
+    }
+
+
 
 }

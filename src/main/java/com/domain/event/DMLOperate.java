@@ -89,7 +89,7 @@ public class DMLOperate {
             }
             int begin = (int) ((List)checkResult.getRtn()).get(0);
             int end = (int)((List)checkResult.getRtn()).get(1);
-            LimitOperate limit = new LimitOperate();
+            moduleOperate limit = new moduleOperate();
             finalSelectResult = limit.limit(finalSelectResult,begin,end);
         }
         List<String> finalSelectColumn = selectItemInfoList.stream().map(SelectItemInfo::getItemName).collect(Collectors.toList());

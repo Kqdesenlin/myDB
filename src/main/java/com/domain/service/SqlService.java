@@ -3,10 +3,7 @@ package com.domain.service;
 import com.Infrastructure.TableInfo.TableInfo;
 import com.Infrastructure.Visitor.FromItemVisitorWithRtn;
 import com.Infrastructure.Visitor.SelectVisitor.ItemsListVisitorWithList;
-import com.domain.Entity.DeleteEntity;
-import com.domain.Entity.InsertEntity;
-import com.domain.Entity.SelectEntity;
-import com.domain.Entity.UpdateEntity;
+import com.domain.Entity.*;
 import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.common.LimitPart;
 import com.domain.Entity.common.TableInfoEntity;
@@ -16,6 +13,7 @@ import com.domain.Entity.result.ResultCode;
 import com.domain.event.DDLOperate;
 import com.domain.event.DMLOperate;
 import com.domain.repository.TableConstant;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
@@ -23,6 +21,8 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.Statements;
+import net.sf.jsqlparser.statement.alter.Alter;
+import net.sf.jsqlparser.statement.alter.AlterExpression;
 import net.sf.jsqlparser.statement.create.table.ColDataType;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -30,11 +30,11 @@ import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.update.Update;
+import org.codehaus.plexus.util.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -42,10 +42,9 @@ import java.util.stream.Collectors;
  * @date: 2021/3/19
  * @description:将sql的解析结果映射到domain的具体操作
  */
+@Slf4j
 @Service
 public class SqlService {
-
-    Logger logger = Logger.getLogger("log_" + SqlService.class.getSimpleName());
 
     DDLOperate ddlOperate = new DDLOperate();
 
@@ -86,6 +85,9 @@ public class SqlService {
         }
         if (statement instanceof CreateTable) {
             return sqlMapToCreate((CreateTable) statement);
+        }
+        if (statement instanceof Alter) {
+
         }
         return null;
 
@@ -211,6 +213,43 @@ public class SqlService {
         }
 
         return dmlOperate.select(selectEntity);
+    }
+
+    public OperateResult sqlMapToAlter(Alter alter) {
+        AlterEntity entity = new AlterEntity();
+        entity.setTable(alter.getTable().getName());
+        //初始化add,alter,droplist
+        List<ColumnInfoEntity> addList = new ArrayList<>();
+        List<ColumnInfoEntity> alterList = new ArrayList<>();
+        List<ColumnInfoEntity> dropList = new ArrayList<>();
+        for(AlterExpression expression : alter.getAlterExpressions()) {
+            AlterExpression.ColumnDataType columnDataType = expression.getColDataTypeList().get(0);
+            ColumnInfoEntity tempColumn = new ColumnInfoEntity();
+            //添加columnName
+            tempColumn.setColumnName(columnDataType.getColumnName());
+            //添加type
+            tempColumn.setDataType(columnDataType.getColDataType().getDataType());
+            String size = columnDataType.getColDataType().getArgumentsStringList().get(0);
+            //添加argument
+            if (!StringUtils.isBlank(size)) {
+                tempColumn.setColumnArguments(size);
+            }
+            //设置特殊参数
+            if (null != columnDataType.getColumnSpecs() && columnDataType.getColumnSpecs().size()>0) {
+                tempColumn.setColumnSpecs(columnDataType.getColumnSpecs()
+                        .stream().map(String::toUpperCase).collect(Collectors.toList()));
+            }
+            if ("ADD".equals(expression.getColumnName())) {
+                addList.add(tempColumn);
+            }
+            if ("ALTER".equals(expression.getColumnName())) {
+                alterList.add(tempColumn);
+            }
+            if ("DROP".equals(expression.getColumnName())) {
+                dropList.add(tempColumn);
+            }
+        }
+        return ddlOperate.alterTable(entity);
     }
 
 }

@@ -8,6 +8,8 @@ package com.domain.service;
 
 import com.Infrastructure.TableInfo.ColumnInfo;
 import com.Infrastructure.TableInfo.TableInfo;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.application.dto.FakeNode;
 import com.domain.repository.TableConstant;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,20 @@ public class DataService {
             list.add(tempNode);
         }
         return list;
+    }
+
+    public JSONArray getTableAndColumn() {
+        JSONArray jsonArray = new JSONArray();
+        for (Map.Entry<String, TableInfo> entry : TableConstant.tableMap.entrySet()) {
+            String tableName = entry.getKey();
+            TableInfo tableInfo = entry.getValue();
+            List<ColumnInfo> columnInfoList = tableInfo.getColumnInfoList();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name",tableName);
+            jsonObject.put("columns",columnInfoList);
+            jsonArray.add(jsonObject);
+        }
+        return jsonArray;
     }
 
     public List<FakeNode> getColumnInfoDto(List<ColumnInfo> columnInfoList) {

@@ -1,18 +1,18 @@
 package com.domain.event;
 
 import com.Infrastructure.TableInfo.ColumnInfo;
+import com.Infrastructure.TableInfo.TableInfo;
+import com.domain.Entity.AlterEntity;
 import com.domain.Entity.CreateTempEntity;
 import com.domain.Entity.bTree.BTree;
 import com.domain.Entity.common.ColumnInfoEntity;
-import com.domain.Entity.createTable.CreateTableEntity;
 import com.domain.Entity.common.TableInfoEntity;
-import com.domain.repository.TableConstant;
-
+import com.domain.Entity.createTable.CreateTableEntity;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
-import com.Infrastructure.TableInfo.TableInfo;
+import com.domain.repository.TableConstant;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class DDLOperate {
@@ -36,7 +36,7 @@ public class DDLOperate {
             return rtn;
         }
         //判断规则是否合法
-        rtn = checkOperate.ifCreateColumnLegal(columnInfoEntities);
+        rtn = checkOperate.ifColumnLegal(columnInfoEntities);
         if (ResultCode.ok != rtn.getCode()){
             return rtn;
         }
@@ -135,6 +135,28 @@ public class DDLOperate {
 //        }
 //        return OperateResult.ok("临时表创建成功",newTableName);
         return null;
+    }
+
+    public OperateResult alterTable(AlterEntity alterEntity) {
+        OperateResult rtn = OperateResult.ok("修改成功");
+        String tableName = alterEntity.getTable();
+        if (!checkOperate.ifTableExists(tableName)) {
+            rtn = OperateResult.error("修改表不存在");
+            return rtn;
+        }
+        TableInfo tableInfo = TableConstant.getTableByName(tableName);
+        rtn = checkOperate.ifAlterColumnLegal(tableInfo,alterEntity);
+        if (ResultCode.ok != rtn.getCode()) {
+            return rtn;
+        }
+        List<List<ColumnInfo>> addAlterDropList = (List<List<ColumnInfo>>)rtn.getRtn();
+        List<ColumnInfo> addColumnList = addAlterDropList.get(0);
+        List<ColumnInfo> alterColumnList = addAlterDropList.get(1);
+        List<ColumnInfo> dropCOlumnList = addAlterDropList.get(2);
+
+
+
+        return OperateResult.ok("修改成功");
     }
 
 
