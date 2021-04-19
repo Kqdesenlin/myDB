@@ -126,7 +126,7 @@ public class CheckOperate {
                 break;
             case DROP:
                 for (ColumnInfo columnInfo:columnInfoList) {
-                    if (!oldColumnList.contains(columnInfo.getColumnName())) {
+                    if (!oldColumnListName.contains(columnInfo.getColumnName())) {
                         return OperateResult.error("关键词校验未通过,drop" + columnInfo.getColumnName() + "不存在");
                     }
                 }
@@ -139,7 +139,7 @@ public class CheckOperate {
 
     public OperateResult ifAlterColumnLegal(TableInfo tableInfo, AlterEntity alterEntity) {
         List<List<ColumnInfo>> addAlterDropList = new ArrayList<>();
-        OperateResult rtn = OperateResult.ok("修改成功");
+        OperateResult rtn = OperateResult.ok("关键词校验通过");
         List<ColumnInfo> oldColumnList = tableInfo.getColumnInfoList();
         List<ColumnInfoEntity> newAddColumnList = alterEntity.getAddColumnList();
         rtn = ifColumnLegal(newAddColumnList);
@@ -166,17 +166,20 @@ public class CheckOperate {
             }
         }
         List<ColumnInfoEntity> newDropColumnList = alterEntity.getDropColumnList();
-        rtn = ifColumnLegal(newDropColumnList);
-        if (ResultCode.ok != rtn.getCode()) {
-            return rtn;
-        } else {
-            List<ColumnInfo> tempColumnInfoList = (List<ColumnInfo>)rtn.getRtn();
+        // fixme drop和addalter不同， 不需要检查语法，只需要检查是否存在
+        List<ColumnInfoEntity> dropColumnList = alterEntity.getDropColumnList();
+        //把columnInfoEntity中的name提取出来，包装成columnInfo
+        List<ColumnInfo> tempColumnInfoList = dropColumnList.stream().map(columnInfoEntity -> {
+            ColumnInfo newColumnInfo = new ColumnInfo();
+            newColumnInfo.setColumnName(columnInfoEntity.getColumnName());
+            return newColumnInfo;
+        }).collect(Collectors.toList());
             addAlterDropList.add(tempColumnInfoList);
             rtn = ifAlterColumnTypeLegal(tableInfo,tempColumnInfoList,AlterColumnEnums.DROP);
             if (ResultCode.ok != rtn.getCode()) {
                 return rtn;
             }
-        }
+
         rtn.setRtn(addAlterDropList);
         return rtn;
     }

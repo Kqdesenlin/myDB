@@ -5,6 +5,7 @@ import com.Infrastructure.TableInfo.TableInfo;
 import com.domain.Entity.AlterEntity;
 import com.domain.Entity.CreateTempEntity;
 import com.domain.Entity.bTree.BTree;
+import com.domain.Entity.bTree.Entry;
 import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.common.TableInfoEntity;
 import com.domain.Entity.createTable.CreateTableEntity;
@@ -12,6 +13,7 @@ import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
 import com.domain.repository.TableConstant;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -150,12 +152,43 @@ public class DDLOperate {
             return rtn;
         }
         List<List<ColumnInfo>> addAlterDropList = (List<List<ColumnInfo>>)rtn.getRtn();
+        List<String> tableOrder = tableInfo.getRulesOrder();
+        List<ColumnInfo> oldTableColumnList = tableInfo.getColumnInfoList();
+        BTree<Integer, List<String>> bTree = tableInfo.getBTree();
+
         List<ColumnInfo> addColumnList = addAlterDropList.get(0);
         List<ColumnInfo> alterColumnList = addAlterDropList.get(1);
-        List<ColumnInfo> dropCOlumnList = addAlterDropList.get(2);
-
-
-
+        List<ColumnInfo> dropColumnList = addAlterDropList.get(2);
+        //先删
+        for (ColumnInfo dropColumn:dropColumnList) {
+            String dropColumnName = dropColumn.getColumnName();
+            int index = tableOrder.indexOf(dropColumnName);
+            tableOrder.remove(index);
+            oldTableColumnList.remove(index);
+            Iterator<Entry<Integer, List<String>>> iterator = bTree.iterator();
+            while (iterator.hasNext()) {
+                Entry<Integer, List<String>> entry = iterator.next();
+                List<String> value = entry.getValue();
+                value.remove(index);
+            }
+        }
+        //再修改
+        for (ColumnInfo alterColumn:alterColumnList) {
+            String alterColumnName = alterColumn.getColumnName();
+            int index = tableOrder.indexOf(alterColumnName);
+            oldTableColumnList.set(index,alterColumn);
+        }
+        //再添加
+        for (ColumnInfo addColumn:addColumnList) {
+            tableOrder.add(addColumn.getColumnName());
+            oldTableColumnList.add(addColumn);
+            Iterator<Entry<Integer, List<String>>> iterator = bTree.iterator();
+            while (iterator.hasNext()) {
+                Entry<Integer, List<String>> entry = iterator.next();
+                List<String> value = entry.getValue();
+                value.add("");
+            }
+        }
         return OperateResult.ok("修改成功");
     }
 

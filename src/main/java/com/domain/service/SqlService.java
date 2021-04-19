@@ -87,7 +87,7 @@ public class SqlService {
             return sqlMapToCreate((CreateTable) statement);
         }
         if (statement instanceof Alter) {
-
+            return sqlMapToAlter((Alter) statement);
         }
         return null;
 
@@ -223,32 +223,59 @@ public class SqlService {
         List<ColumnInfoEntity> alterList = new ArrayList<>();
         List<ColumnInfoEntity> dropList = new ArrayList<>();
         for(AlterExpression expression : alter.getAlterExpressions()) {
-            AlterExpression.ColumnDataType columnDataType = expression.getColDataTypeList().get(0);
-            ColumnInfoEntity tempColumn = new ColumnInfoEntity();
-            //添加columnName
-            tempColumn.setColumnName(columnDataType.getColumnName());
-            //添加type
-            tempColumn.setDataType(columnDataType.getColDataType().getDataType());
-            String size = columnDataType.getColDataType().getArgumentsStringList().get(0);
-            //添加argument
-            if (!StringUtils.isBlank(size)) {
-                tempColumn.setColumnArguments(size);
+            //获取对应的alter的类型
+            String alterColumnType = expression.getOperation().name();
+            if("ADD".equals(alterColumnType)) {
+                AlterExpression.ColumnDataType columnDataType = expression.getColDataTypeList().get(0);
+                ColumnInfoEntity tempColumn = new ColumnInfoEntity();
+                //添加columnName
+                tempColumn.setColumnName(columnDataType.getColumnName());
+
+                //添加type
+                tempColumn.setDataType(columnDataType.getColDataType().getDataType());
+                String size = columnDataType.getColDataType().getArgumentsStringList().get(0);
+                //添加argument
+                if (!StringUtils.isBlank(size)) {
+                    tempColumn.setColumnArguments(size);
+                }
+                //设置特殊参数
+                if (null != columnDataType.getColumnSpecs() && columnDataType.getColumnSpecs().size()>0) {
+                    tempColumn.setColumnSpecs(columnDataType.getColumnSpecs()
+                            .stream().map(String::toUpperCase).collect(Collectors.toList()));
+                }
+                    addList.add(tempColumn);
             }
-            //设置特殊参数
-            if (null != columnDataType.getColumnSpecs() && columnDataType.getColumnSpecs().size()>0) {
-                tempColumn.setColumnSpecs(columnDataType.getColumnSpecs()
-                        .stream().map(String::toUpperCase).collect(Collectors.toList()));
-            }
-            if ("ADD".equals(expression.getColumnName())) {
-                addList.add(tempColumn);
-            }
-            if ("ALTER".equals(expression.getColumnName())) {
-                alterList.add(tempColumn);
-            }
-            if ("DROP".equals(expression.getColumnName())) {
+            if ("DROP".equals(alterColumnType)) {
+                ColumnInfoEntity tempColumn = new ColumnInfoEntity();
+                tempColumn.setColumnName(expression.getColumnName());
                 dropList.add(tempColumn);
             }
+            if ("ALTER".equals(alterColumnType)) {
+                AlterExpression.ColumnDataType columnDataType = expression.getColDataTypeList().get(0);
+                ColumnInfoEntity tempColumn = new ColumnInfoEntity();
+                //添加columnName
+                tempColumn.setColumnName(columnDataType.getColumnName());
+
+                //添加type
+                tempColumn.setDataType(columnDataType.getColDataType().getDataType());
+                List<String> arguments = columnDataType.getColDataType().getArgumentsStringList();
+                //添加argument
+                if (null != arguments) {
+                    tempColumn.setColumnArguments(arguments.get(0));
+                }
+                //设置特殊参数
+                if (null != columnDataType.getColumnSpecs() && columnDataType.getColumnSpecs().size()>0) {
+                    tempColumn.setColumnSpecs(columnDataType.getColumnSpecs()
+                            .stream().map(String::toUpperCase).collect(Collectors.toList()));
+                }
+                alterList.add(tempColumn);
+            }
+
         }
+
+        entity.setAddColumnList(addList);
+        entity.setAlterColumnList(alterList);
+        entity.setDropColumnList(dropList);
         return ddlOperate.alterTable(entity);
     }
 
