@@ -14,6 +14,9 @@ import com.application.dto.FakeNode;
 import com.domain.repository.TableConstant;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,5 +84,18 @@ public class DataService {
         FakeNode columnNull = new FakeNode("notNull:"+(columnInfo.isNotNull()?"true":"false"),null);
         rtn.add(columnNull);
         return rtn;
+    }
+
+    public File createSqlFile(String sql) {
+        try {
+            File file = new File("sql.txt");
+            FileWriter myWriter = new FileWriter(file);
+            myWriter.write(sql);
+            myWriter.close();
+            return file;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new File("sql.txt");
     }
 }

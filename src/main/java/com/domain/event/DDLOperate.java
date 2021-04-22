@@ -9,6 +9,7 @@ import com.domain.Entity.bTree.Entry;
 import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.common.TableInfoEntity;
 import com.domain.Entity.createTable.CreateTableEntity;
+import com.domain.Entity.result.DropEntity;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
 import com.domain.repository.TableConstant;
@@ -190,6 +191,17 @@ public class DDLOperate {
             }
         }
         return OperateResult.ok("修改成功");
+    }
+
+    public OperateResult dropTable(DropEntity dropEntity) {
+        OperateResult rtn = OperateResult.ok("删除成功");
+        String tableName = dropEntity.getTableName();
+        if (!checkOperate.ifTableExists(tableName)) {
+            rtn = OperateResult.error("删除表不存在");
+            return rtn;
+        }
+        TableConstant.tableMap.remove(tableName);
+        return rtn;
     }
 
 

@@ -33,8 +33,7 @@ public class FromItemVisitorWithRtn implements FromItemVisitor {
         try {
             this.tableInfo = (TableInfo) BeanUtils.cloneBean(tableInfo);
         } catch (Exception e) {
-            e.printStackTrace();
-            errorResult = OperateResult.error("table not exist or table clone failed",e.getMessage());
+            errorResult = OperateResult.error(tableName.getName()+"对应表不存在，或者复制失败",e.getMessage());
         }
     }
 

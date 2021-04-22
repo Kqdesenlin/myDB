@@ -8,6 +8,7 @@ import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.common.LimitPart;
 import com.domain.Entity.common.TableInfoEntity;
 import com.domain.Entity.createTable.CreateTableEntity;
+import com.domain.Entity.result.DropEntity;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
 import com.domain.event.DDLOperate;
@@ -27,10 +28,10 @@ import net.sf.jsqlparser.statement.create.table.ColDataType;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
+import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.update.Update;
-import org.codehaus.plexus.util.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -88,6 +89,9 @@ public class SqlService {
         }
         if (statement instanceof Alter) {
             return sqlMapToAlter((Alter) statement);
+        }
+        if (statement instanceof Drop) {
+            return sqlMapToDrop((Drop) statement);
         }
         return null;
 
@@ -233,10 +237,10 @@ public class SqlService {
 
                 //添加type
                 tempColumn.setDataType(columnDataType.getColDataType().getDataType());
-                String size = columnDataType.getColDataType().getArgumentsStringList().get(0);
+                List<String> sizes = columnDataType.getColDataType().getArgumentsStringList();
                 //添加argument
-                if (!StringUtils.isBlank(size)) {
-                    tempColumn.setColumnArguments(size);
+                if (null != sizes && sizes.size()>0) {
+                    tempColumn.setColumnArguments(sizes.get(0));
                 }
                 //设置特殊参数
                 if (null != columnDataType.getColumnSpecs() && columnDataType.getColumnSpecs().size()>0) {
@@ -277,6 +281,13 @@ public class SqlService {
         entity.setAlterColumnList(alterList);
         entity.setDropColumnList(dropList);
         return ddlOperate.alterTable(entity);
+    }
+
+    public OperateResult sqlMapToDrop(Drop drop) {
+        DropEntity dropEntity = new DropEntity();
+        String tableName = drop.getName().getName();
+        dropEntity.setTableName(tableName);
+        return ddlOperate.dropTable(dropEntity);
     }
 
 }

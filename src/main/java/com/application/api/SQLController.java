@@ -15,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,6 +27,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
+@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600,allowCredentials = "true")
 @RequestMapping("/api")
 public class SQLController {
 
@@ -38,15 +42,23 @@ public class SQLController {
     @Autowired
     private DataService dataService;
 
-    @CrossOrigin
+
     @PostMapping("/sql")
-    public JSONArray testSQL(@RequestBody SQLDto sql) {
+    public JSONArray testSQL(@RequestBody SQLDto sql, HttpServletRequest request) {
+
         JSONArray array = new JSONArray();
         if (null == sql) {
             return array;
         }
         String input = sql.getSql().replaceAll("\r|\n","");
         log.info(input);
+        HttpSession session = request.getSession();
+        List<String> sqlList = (List<String>)session.getAttribute("sqlBackUp");
+        if (null == sqlList || sqlList.size() == 0) {
+            session.setAttribute("sqlBackUp", Arrays.asList(input));
+        } else {
+            session.setAttribute("sqlBackUp",((List<String>)session.getAttribute("sqlBackUp")).add(input));
+        }
         try {
                 List<OperateResult> or = sqlService.mutilSqlMapToState(input);
             for (OperateResult result : or) {
@@ -69,7 +81,6 @@ public class SQLController {
         return array;
     }
 
-    @CrossOrigin
     @GetMapping("/data")
     public JSONArray getTableInfo() {
         JSONArray jsonArray = new JSONArray();
@@ -78,11 +89,11 @@ public class SQLController {
         return jsonArray;
     }
 
-    @CrossOrigin
     @GetMapping("/updatedata")
     public JSONArray getUpdateTableInfo() {
         return dataService.getTableAndColumn();
     }
+
 
 
 

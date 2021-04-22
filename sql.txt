@@ -1,0 +1,1 @@
+[CREATE TABLE customer(id int NOT NULL,name char(12) not null unique);CREATE TABLE Persons(Id_P int,LastName varchar(255),FirstName varchar(255),Address varchar(255),City varchar(255));create table city(name varchar(25) not null unique,localRate Double);insert into city values('hangzhou',14.15);insert into city values('ningbo',13.14);insert into city values('zhejiang',17.111);]
