@@ -229,20 +229,20 @@ public class DDLOperate {
                 stream().map(ColumnInfo::getColumnName).collect(Collectors.toList());
         //创建索引
         IndexInfo indexInfo = new IndexInfo(createIndexEntity.getIndexName(),
-                parentTableInfo.getTableName(), new BTree<Integer,List<String>>(),
+                parentTableInfo.getTableName(), new BTree<List<String>,Integer>(),
                 createIndexEntity.getColumnInfoList(),columnOrder,createIndexEntity.getIndexType());
         //添加数据
         BTree<Integer,List<String>> parentTree = parentTableInfo.getBTree();
-        BTree<Integer,List<String>> sonTree = indexInfo.getBTree();
+        BTree<List<String>,Integer> sonTree = indexInfo.getBTree();
         List<String> parentColumnOrder = parentTableInfo.getRulesOrder();
         Iterator<Entry<Integer, List<String>>> parentIterator = parentTree.iterator();
         while (parentIterator.hasNext()) {
             Entry<Integer, List<String>> entry = parentIterator.next();
+            Integer oldKey = entry.getKey();
             List<String> oldValues = entry.getValue();
             List<String> newValues = TypeConverUtils.
                     selectColumnValueFromGivenColumnInfo(parentColumnOrder, oldValues,columnOrder);
-            Integer newKey = indexInfo.primaryKey.getAndIncrement();
-            Entry<Integer,List<String>> newEntry = new Entry<>(newKey,newValues);
+            Entry<List<String>,Integer> newEntry = new Entry<>(newValues,oldKey);
             sonTree.addNode(newEntry);
         }
         //添加到所在的tableInfo中

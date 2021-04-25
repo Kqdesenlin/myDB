@@ -297,15 +297,15 @@ public class DMLOperate {
         List<String> parentColumnOrder = tableInfo.getRulesOrder();
         for (IndexInfo indexInfo : indexInfoList) {
             List<String> columnOrder = indexInfo.getRulesOrder();
-            BTree<Integer,List<String>> tempBTree = new BTree<>();
+            BTree<List<String>,Integer> tempBTree = new BTree<>();
             Iterator<Entry<Integer,List<String>>> parentIterator = parentTree.iterator();
             while (parentIterator.hasNext()) {
                 Entry<Integer, List<String>> entry = parentIterator.next();
+                Integer oldKey = entry.getKey();
                 List<String> oldValues = entry.getValue();
                 List<String> newValues = TypeConverUtils.
                         selectColumnValueFromGivenColumnInfo(parentColumnOrder, oldValues,columnOrder);
-                Integer newKey = indexInfo.primaryKey.getAndIncrement();
-                Entry<Integer,List<String>> newEntry = new Entry<>(newKey,newValues);
+                Entry<List<String>,Integer> newEntry = new Entry<>(newValues,oldKey);
                 tempBTree.addNode(newEntry);
             }
             indexInfo.setBTree(tempBTree);

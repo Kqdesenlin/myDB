@@ -8,6 +8,7 @@ import com.domain.Entity.result.SelectResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TypeConverUtils {
 
@@ -105,4 +106,25 @@ public class TypeConverUtils {
         }
         return rtnValues;
     }
+
+    public static List<List<String>> IndexListCombined(List<List<String>> leftIndexLists,List<List<String>> rightIndexLists) {
+        if (leftIndexLists.isEmpty()) {
+            return rightIndexLists;
+        }
+        List<List<String>> rtn = new ArrayList<>();
+        for (List<String> leftIndexList : leftIndexLists) {
+            if (!rightIndexLists.isEmpty()) {
+                for (List<String> rightIndexList : rightIndexLists) {
+                    List<String> tempRtn = new ArrayList<>();
+                    tempRtn.addAll(leftIndexList);
+                    tempRtn.addAll(rightIndexList);
+                    tempRtn = tempRtn.stream().distinct().collect(Collectors.toList());
+                    rtn.add(tempRtn);
+                }
+            }
+        }
+        rtn = rtn.stream().distinct().collect(Collectors.toList());
+        return rtn;
+    }
+
 }

@@ -22,7 +22,7 @@ public class IndexInfo implements Cloneable{
 
     String tableName;
 
-    BTree<Integer, List<String>> bTree;
+    BTree<List<String>,Integer> bTree;
 
     List<ColumnInfo> columnInfoList;
 
@@ -34,12 +34,12 @@ public class IndexInfo implements Cloneable{
 
     public IndexInfo() {}
 
-    public IndexInfo(BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder) {
+    public IndexInfo(BTree<List<String>,Integer> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder) {
         this.bTree = bTree;
         this.columnInfoList = columnInfoList;
         this.rulesOrder = rulesOrder;
     }
-    public IndexInfo(String indexName,String tableName,BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder,IndexTypeEnums indexType) {
+    public IndexInfo(String indexName,String tableName,BTree<List<String>,Integer> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder,IndexTypeEnums indexType) {
         this.indexName = indexName;
         this.tableName = tableName;
         this.bTree = bTree;

@@ -23,6 +23,16 @@ public class Node<K,V> implements Cloneable{
     private Comparator<K> kComparator;
 
     public int compare(K key1, K key2){
+        if (key1 instanceof List && key2 instanceof List) {
+            for (int var1 = 0; var1 < ((List<?>) key1).size(); ++var1) {
+                int flag = ((Comparable<String>) (((List<?>) key1).get(var1))).compareTo((String) ((List<?>) key2).get(var1));
+                if (0 == flag) {
+                    continue;
+                } else {
+                    return flag;
+                }
+            }
+        }
         return this.kComparator==null? ((Comparable<K>)key2).compareTo(key1) : kComparator.compare(key1,key2);
     }
 
