@@ -27,7 +27,7 @@ public class TableInfoTask {
 
     public static Map<String, TableInfo> storeTableMap = new HashMap<String, TableInfo>();
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 10000)
     public void storeTableInfo()throws Exception {
         String oldJSON = JSON.toJSONString(storeTableMap);
         String newJSON = JSON.toJSONString(TableConstant.tableMap);

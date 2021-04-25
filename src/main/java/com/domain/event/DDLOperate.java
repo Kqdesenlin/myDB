@@ -1,14 +1,19 @@
 package com.domain.event;
 
+import com.Infrastructure.IndexInfo.IndexInfo;
+import com.Infrastructure.Service.TypeConverUtils;
 import com.Infrastructure.TableInfo.ColumnInfo;
 import com.Infrastructure.TableInfo.TableInfo;
 import com.domain.Entity.AlterEntity;
+import com.domain.Entity.CreateIndexEntity;
 import com.domain.Entity.CreateTempEntity;
+import com.domain.Entity.DropIndexEntity;
 import com.domain.Entity.bTree.BTree;
 import com.domain.Entity.bTree.Entry;
 import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.common.TableInfoEntity;
 import com.domain.Entity.createTable.CreateTableEntity;
+import com.domain.Entity.middle.CreateIndexMiddleEntity;
 import com.domain.Entity.result.DropEntity;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
@@ -16,6 +21,7 @@ import com.domain.repository.TableConstant;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DDLOperate {
@@ -202,6 +208,70 @@ public class DDLOperate {
         }
         TableConstant.tableMap.remove(tableName);
         return rtn;
+    }
+
+    /**
+     *
+     * @param entity middleentity
+     *
+     * @return operateResult
+     */
+    public OperateResult createIndex(CreateIndexMiddleEntity entity) {
+        CreateIndexEntity createIndexEntity = new CreateIndexEntity();
+        //校验索引
+        OperateResult checkedResult = checkOperate.ifCreateIndexLegal(entity);
+        if (!checkedResult.isOk()) {
+            return checkedResult;
+        }
+        createIndexEntity = (CreateIndexEntity) checkedResult.getRtn();
+        TableInfo parentTableInfo = createIndexEntity.getTableInfo();
+        List<String> columnOrder = createIndexEntity.getColumnInfoList().
+                stream().map(ColumnInfo::getColumnName).collect(Collectors.toList());
+        //创建索引
+        IndexInfo indexInfo = new IndexInfo(createIndexEntity.getIndexName(),
+                parentTableInfo.getTableName(), new BTree<Integer,List<String>>(),
+                createIndexEntity.getColumnInfoList(),columnOrder,createIndexEntity.getIndexType());
+        //添加数据
+        BTree<Integer,List<String>> parentTree = parentTableInfo.getBTree();
+        BTree<Integer,List<String>> sonTree = indexInfo.getBTree();
+        List<String> parentColumnOrder = parentTableInfo.getRulesOrder();
+        Iterator<Entry<Integer, List<String>>> parentIterator = parentTree.iterator();
+        while (parentIterator.hasNext()) {
+            Entry<Integer, List<String>> entry = parentIterator.next();
+            List<String> oldValues = entry.getValue();
+            List<String> newValues = TypeConverUtils.
+                    selectColumnValueFromGivenColumnInfo(parentColumnOrder, oldValues,columnOrder);
+            Integer newKey = indexInfo.primaryKey.getAndIncrement();
+            Entry<Integer,List<String>> newEntry = new Entry<>(newKey,newValues);
+            sonTree.addNode(newEntry);
+        }
+        //添加到所在的tableInfo中
+        parentTableInfo.getIndexInfos().add(indexInfo);
+        return OperateResult.ok("创建索引成功");
+    }
+
+    public OperateResult dropIndex(DropIndexEntity entity) {
+        OperateResult rtn = OperateResult.ok("删除失败");
+        rtn = checkOperate.ifDropIndexLegal(entity);
+        if (!rtn.isOk()) {
+            return rtn;
+        }
+        String indexName = entity.getIndexName();
+        for (Map.Entry<String, TableInfo> entry : TableConstant.tableMap.entrySet()) {
+            TableInfo tempTableInfo = entry.getValue();
+            List<IndexInfo> tempIndexInfoList = tempTableInfo.getIndexInfos();
+            int deleteIndex = -1;
+            for (int var1 = 0; var1<tempIndexInfoList.size();++var1) {
+                if (tempIndexInfoList.get(var1).getIndexName().equals(indexName)){
+                    deleteIndex = var1;
+                    break;
+                }
+            }
+            if (deleteIndex != -1){
+                tempIndexInfoList.remove(deleteIndex);
+            }
+        }
+        return OperateResult.ok("删除索引成功");
     }
 
 

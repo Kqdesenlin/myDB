@@ -1,41 +1,51 @@
-package com.Infrastructure.TableInfo;
+package com.Infrastructure.IndexInfo;
 
-import com.Infrastructure.IndexInfo.IndexInfo;
+import com.Infrastructure.TableInfo.ColumnInfo;
 import com.domain.Entity.bTree.BTree;
+import com.domain.Entity.enums.IndexTypeEnums;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 具体表信息
+ * @author: zhangQY
+ * @date: 2021/4/23
+ * @description:
  */
 @Data
 @AllArgsConstructor
-public class TableInfo implements Cloneable{
+public class IndexInfo implements Cloneable{
+
+    String indexName;
+
     String tableName;
-    BTree<Integer,List<String>> bTree;
+
+    BTree<Integer, List<String>> bTree;
+
     List<ColumnInfo> columnInfoList;
+
     List<String> rulesOrder;
-    List<IndexInfo> indexInfos;
+
+    IndexTypeEnums indexType;
+
     public AtomicInteger primaryKey = new AtomicInteger(1);
 
-    public TableInfo() {}
+    public IndexInfo() {}
 
-    public TableInfo(BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder) {
+    public IndexInfo(BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder) {
         this.bTree = bTree;
         this.columnInfoList = columnInfoList;
         this.rulesOrder = rulesOrder;
-        this.indexInfos = new ArrayList<>();
     }
-    public TableInfo(String tableName,BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder) {
+    public IndexInfo(String indexName,String tableName,BTree<Integer, List<String>> bTree, List<ColumnInfo> columnInfoList, List<String> rulesOrder,IndexTypeEnums indexType) {
+        this.indexName = indexName;
         this.tableName = tableName;
         this.bTree = bTree;
         this.columnInfoList = columnInfoList;
         this.rulesOrder = rulesOrder;
-        this.indexInfos = new ArrayList<>();
+        this.indexType = indexType;
     }
 
     @Override

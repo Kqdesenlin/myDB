@@ -35,4 +35,7 @@ public class OperateResult {
         return new OperateResult(info,ResultCode.error,rtn);
     }
 
+    public boolean isOk(){
+        return this.code.equals(ResultCode.ok);
+    }
 }

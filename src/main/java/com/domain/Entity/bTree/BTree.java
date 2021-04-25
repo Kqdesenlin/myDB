@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * @author xumg
@@ -19,7 +18,6 @@ import java.util.logging.Logger;
 @AllArgsConstructor
 public class BTree<K,V> implements Cloneable{
 
-    Logger logger = Logger.getLogger("log_" + BTree.class.getName());
     //默认度数t为2
     private Integer DEAFULT_T=2;
 
@@ -54,11 +52,11 @@ public class BTree<K,V> implements Cloneable{
     //在正确的节点插入该entry
     public void addEntry(Node<K,V> root, Entry<K,V>entry){
         Result<V> result = root.search(entry.getKey());
-        if(result.isExist()){
-            return;
-        }else{
+//        if(result.isExist()){
+//            return;
+//        }else{
             root.addEntry(result.getIndex(),entry);
-        }
+//        }
     }
     //添加第一步，判断根节点是否已满
     public void addNode(Entry<K, V> en) {
@@ -80,9 +78,9 @@ public class BTree<K,V> implements Cloneable{
             return;
         }
         Result<V> result = root.search(entry.getKey());
-        if(result.isExist()){
-            return;
-        }
+//        if(result.isExist()){
+//            return;
+//        }
         //不是叶子节点，根据查找出所在子节点下标获取子节点对象
         int index=result.getIndex();
         Node<K,V> searchChild=root.childAt(index);
@@ -163,7 +161,7 @@ public class BTree<K,V> implements Cloneable{
             //删除项不在本节点中,在其子节点中
             if(root.isLeaf()){
                 //如果该节点已经是叶子节点,则表明不在其中
-                logger.info("删除失败，无法查找到需要删除节点");
+                log.info("删除失败，无法查找到需要删除节点");
                 return new Entry<K, V>();
             }
             Node<K,V> searchChild=root.childAt(result.getIndex());

@@ -8,6 +8,7 @@ import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.common.LimitPart;
 import com.domain.Entity.common.TableInfoEntity;
 import com.domain.Entity.createTable.CreateTableEntity;
+import com.domain.Entity.middle.CreateIndexMiddleEntity;
 import com.domain.Entity.result.DropEntity;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
@@ -24,9 +25,11 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.Statements;
 import net.sf.jsqlparser.statement.alter.Alter;
 import net.sf.jsqlparser.statement.alter.AlterExpression;
+import net.sf.jsqlparser.statement.create.index.CreateIndex;
 import net.sf.jsqlparser.statement.create.table.ColDataType;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.table.Index;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
@@ -90,8 +93,14 @@ public class SqlService {
         if (statement instanceof Alter) {
             return sqlMapToAlter((Alter) statement);
         }
-        if (statement instanceof Drop) {
+        if (statement instanceof Drop && ((Drop)statement).getType().equals("table")) {
             return sqlMapToDrop((Drop) statement);
+        }
+        if (statement instanceof CreateIndex) {
+            return sqlMapToCreateIndex((CreateIndex) statement);
+        }
+        if (statement instanceof Drop &&((Drop)statement).getType().equals("index")) {
+            return sqlMapToDropIndex((Drop)statement);
         }
         return null;
 
@@ -288,6 +297,32 @@ public class SqlService {
         String tableName = drop.getName().getName();
         dropEntity.setTableName(tableName);
         return ddlOperate.dropTable(dropEntity);
+    }
+
+    public OperateResult sqlMapToCreateIndex(CreateIndex createIndex) {
+        CreateIndexMiddleEntity entity = new CreateIndexMiddleEntity();
+        Index index = createIndex.getIndex();
+        entity.setTableName(createIndex.getTable().getName());
+        entity.setIndexName(index.getName());
+        if (null != index.getType()) {
+            entity.setIndexType(index.getType());
+        }
+        if (null != index.getColumns()) {
+            List<String> columnList = new ArrayList<>();
+            for (Index.ColumnParams column : index.getColumns()) {
+                columnList.add(column.getColumnName());
+            }
+            entity.setColumnList(columnList);
+        }
+        OperateResult result = ddlOperate.createIndex(entity);
+        return result;
+    }
+
+    public OperateResult sqlMapToDropIndex(Drop drop) {
+        DropIndexEntity entity = new DropIndexEntity();
+        entity.setIndexName(drop.getName().getName());
+        OperateResult result = ddlOperate.dropIndex(entity);
+        return  result;
     }
 
 }

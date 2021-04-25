@@ -1,17 +1,18 @@
 package com.domain.event;
 
+import com.Infrastructure.IndexInfo.IndexInfo;
 import com.Infrastructure.TableInfo.ColumnInfo;
 import com.Infrastructure.TableInfo.TableInfo;
 import com.Infrastructure.Visitor.ExpressionVisitorWithRtn;
 import com.domain.Entity.AlterEntity;
+import com.domain.Entity.CreateIndexEntity;
+import com.domain.Entity.DropIndexEntity;
 import com.domain.Entity.InsertEntity;
 import com.domain.Entity.bTree.Entry;
 import com.domain.Entity.common.ColumnInfoEntity;
 import com.domain.Entity.common.LimitPart;
-import com.domain.Entity.enums.AlterColumnEnums;
-import com.domain.Entity.enums.ColumnSpecsEnums;
-import com.domain.Entity.enums.ColumnTypeEnums;
-import com.domain.Entity.enums.ColumnTypeLengthEnums;
+import com.domain.Entity.enums.*;
+import com.domain.Entity.middle.CreateIndexMiddleEntity;
 import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
 import com.domain.repository.TableConstant;
@@ -313,6 +314,81 @@ public class CheckOperate {
             return newType == ColumnTypeEnums.Char || newType == ColumnTypeEnums.VarChar;
         }
         return false;
+    }
+
+    public OperateResult ifCreateIndexLegal(CreateIndexMiddleEntity entity) {
+        CreateIndexEntity createIndexEntity = new CreateIndexEntity();
+        //添加indexname
+        createIndexEntity.setIndexName(entity.getIndexName());
+        //添加type
+        IndexTypeEnums indexType = IndexTypeEnums.findIndexType(entity.getIndexType());
+        if (indexType == IndexTypeEnums.UNKNOWN) {
+            return OperateResult.error("未知索引类型");
+        }
+        createIndexEntity.setIndexType(indexType);
+        String tableName = entity.getTableName();
+        if (!ifTableExists(tableName)) {
+            return OperateResult.error("创建索引所在表不存在");
+        }
+        TableInfo tableInfo = TableConstant.getTableByName(tableName);
+        //添加tableinfo
+        createIndexEntity.setTableInfo(tableInfo);
+        List<IndexInfo> indexInfoList = tableInfo.getIndexInfos();
+        if (null != indexInfoList) {
+            List<String> indexNameList = indexInfoList.stream().map(IndexInfo::getIndexName).collect(Collectors.toList());
+            if (indexNameList.contains(createIndexEntity.getIndexName())) {
+                return OperateResult.error("已存在同名索引");
+            }
+        }
+        List<String> columnNameList = entity.getColumnList();
+        if (null == columnNameList || columnNameList.isEmpty()) {
+            return OperateResult.error("索引需要包含至少一个列");
+        }
+        List<ColumnInfo> columnInfoList = new ArrayList<>();
+        for (String columnName : columnNameList) {
+            if (!ifTableContainColumn(tableInfo,columnName)) {
+                return OperateResult.error("索引对应表，不包括指定列");
+            }
+            ColumnInfo columnInfo = getColumnInfoByName(tableInfo,columnName);
+            columnInfoList.add(columnInfo);
+        }
+        //添加columninfoList
+        createIndexEntity.setColumnInfoList(columnInfoList);
+        return OperateResult.ok("索引校验通过",createIndexEntity);
+    }
+
+    public OperateResult ifDropIndexLegal(DropIndexEntity entity) {
+        if (!ifIndexExists(entity.getIndexName())){
+            return OperateResult.error("不存在对应索引，删除失败");
+        }
+        return OperateResult.ok("删除索引校验通过");
+
+    }
+
+    public boolean ifIndexExists(String indexName) {
+        for (Map.Entry<String, TableInfo> entry : TableConstant.tableMap.entrySet()) {
+            TableInfo tempTableInfo = entry.getValue();
+            List<IndexInfo> tempIndexInfoList = tempTableInfo.getIndexInfos();
+            List<String> indexNameList = tempIndexInfoList.stream().map(IndexInfo::getIndexName).collect(Collectors.toList());
+            if (indexNameList.contains(indexName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean ifTableContainColumn(TableInfo tableInfo, String columnName) {
+        List<ColumnInfo> columnInfoList = tableInfo.getColumnInfoList();
+        List<String> columnNameList = columnInfoList.stream().map(ColumnInfo::getColumnName).collect(Collectors.toList());
+        return columnNameList.contains(columnName);
+    }
+
+    public ColumnInfo getColumnInfoByName(TableInfo tableInfo, String columnName) {
+        List<ColumnInfo> columnInfoList = tableInfo.getColumnInfoList();
+        ColumnInfo columnInfo = columnInfoList.stream().filter(x -> {
+            x.getColumnName().equals(columnName);
+            return true;
+        }).findFirst().get();
+        return columnInfo;
     }
 
 }

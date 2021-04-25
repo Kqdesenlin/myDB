@@ -1,5 +1,6 @@
 package com.domain.event;
 
+import com.Infrastructure.IndexInfo.IndexInfo;
 import com.Infrastructure.Service.TypeConverUtils;
 import com.Infrastructure.TableInfo.ColumnInfo;
 import com.Infrastructure.TableInfo.ColumnValueInfo;
@@ -188,6 +189,10 @@ public class DMLOperate {
         Integer primaryKey = tableInfo.primaryKey.getAndIncrement();
         Entry<Integer, List<String>> insertEntry = new Entry<Integer, List<String>>(primaryKey, insertItems);
         tableInfo.getBTree().addNode(insertEntry);
+        operateResult = updateIndex(tableInfo);
+        if (!operateResult.isOk()){
+            return operateResult;
+        }
         return OperateResult.ok("插入成功");
     }
 
@@ -219,6 +224,10 @@ public class DMLOperate {
             }
         } else {
             bTree = new BTree<>();
+        }
+        OperateResult operateResult = updateIndex(tempTableInfo);
+        if (!operateResult.isOk()){
+            return operateResult;
         }
         return OperateResult.ok("删除成功");
     }
@@ -272,6 +281,35 @@ public class DMLOperate {
                 entry.setValue(columnValueInfo.getColumnValueList());
             }
         }
+        OperateResult operateResult = updateIndex(tempTableInfo);
+        if (!operateResult.isOk()){
+            return operateResult;
+        }
         return OperateResult.ok("修改成功");
+    }
+
+    public OperateResult updateIndex(TableInfo tableInfo) {
+        List<IndexInfo> indexInfoList = tableInfo.getIndexInfos();
+        if (null == indexInfoList || indexInfoList.isEmpty()) {
+            return OperateResult.ok("无索引需要更新");
+        }
+        BTree<Integer,List<String>> parentTree = tableInfo.getBTree();
+        List<String> parentColumnOrder = tableInfo.getRulesOrder();
+        for (IndexInfo indexInfo : indexInfoList) {
+            List<String> columnOrder = indexInfo.getRulesOrder();
+            BTree<Integer,List<String>> tempBTree = new BTree<>();
+            Iterator<Entry<Integer,List<String>>> parentIterator = parentTree.iterator();
+            while (parentIterator.hasNext()) {
+                Entry<Integer, List<String>> entry = parentIterator.next();
+                List<String> oldValues = entry.getValue();
+                List<String> newValues = TypeConverUtils.
+                        selectColumnValueFromGivenColumnInfo(parentColumnOrder, oldValues,columnOrder);
+                Integer newKey = indexInfo.primaryKey.getAndIncrement();
+                Entry<Integer,List<String>> newEntry = new Entry<>(newKey,newValues);
+                tempBTree.addNode(newEntry);
+            }
+            indexInfo.setBTree(tempBTree);
+        }
+        return OperateResult.ok("更新索引成功");
     }
 }

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,11 +53,14 @@ public class SQLController {
         String input = sql.getSql().replaceAll("\r|\n","");
         log.info(input);
         HttpSession session = request.getSession();
-        List<String> sqlList = (List<String>)session.getAttribute("sqlBackUp");
+         List<String> sqlList = (List<String>)session.getAttribute("sqlBackUp");
         if (null == sqlList || sqlList.size() == 0) {
-            session.setAttribute("sqlBackUp", Arrays.asList(input));
+            List<String> tempList = new ArrayList<>();
+            tempList.add(input);
+            session.setAttribute("sqlBackUp", tempList);
         } else {
-            session.setAttribute("sqlBackUp",((List<String>)session.getAttribute("sqlBackUp")).add(input));
+            sqlList.add(input);
+            session.setAttribute("sqlBackUp",sqlList);
         }
         try {
                 List<OperateResult> or = sqlService.mutilSqlMapToState(input);
@@ -94,7 +97,9 @@ public class SQLController {
         return dataService.getTableAndColumn();
     }
 
-
-
+    @GetMapping("/indexdata")
+    public JSONArray getIndexTableInfo() {
+        return dataService.getTableAndIndex();
+    }
 
 }

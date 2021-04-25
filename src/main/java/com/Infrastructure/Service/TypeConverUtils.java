@@ -8,21 +8,18 @@ import com.domain.Entity.result.SelectResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class TypeConverUtils {
 
-    private static Logger logger = Logger.getLogger("log_" + TypeConverUtils.class.getName());
 
     //根据list对应map中k的顺序，顺序输出value
     public static List<String> mapToListByListOrder(InsertEntity insertEntity, List<String> list){
         List<String> rtn = new ArrayList<>();
         List<String> insertOrder = insertEntity.getColumnOrder();
-        List<String> tableOrder = list;
         List<String> insertValue = insertEntity.getColumnValue();
-        for (int var1 = 0; var1<tableOrder.size();++var1) {
-            for (int var2 = 0;var2<insertOrder.size();++var2) {
-                if (tableOrder.get(var1).equals(insertOrder.get(var2))) {
+        for (String s : list) {
+            for (int var2 = 0; var2 < insertOrder.size(); ++var2) {
+                if (s.equals(insertOrder.get(var2))) {
                     rtn.add(insertValue.get(var2));
                 }
             }
@@ -52,9 +49,9 @@ public class TypeConverUtils {
         return s.toUpperCase();
     }
 
-    /**
-     *     插入的entity是 具体的值 : 对应的列
-     *     需要返回是 具体的值 ： 对应列的类型
+    /*
+          插入的entity是 具体的值 : 对应的列
+          需要返回是 具体的值 ： 对应列的类型
      */
 
     /**
@@ -68,13 +65,12 @@ public class TypeConverUtils {
      * 当name转换成type之后，会出现，type:value的情况，是多对多的情况，所以这里不能使用map进行存储
      *
      * @date :2021/3/17
-     * @param insertItems
-     * @param tableName
-     * @return
+     * @param insertItems insertItem
+     * @param tableName tableName
+     * @return map
      */
     public static Map<String, String> valAndNameConvertToValAndType(Map<String,String> insertItems,String tableName) {
 
-        logger.info("beforeConver:" + insertItems);
 //        for(Map.Entry<String,String> entry : insertItems.entrySet()){
 //            String RowName = entry.getValue();
 //            TableInfo tableInfo = TableConstant.getTableByName(tableName);
@@ -96,5 +92,17 @@ public class TypeConverUtils {
 //                (Map.Entry<String,String>::getKey,Map.Entry<String,String>::getValue));
 //    }
         return null;
+    }
+
+    public static List<String> selectColumnValueFromGivenColumnInfo(List<String> parentOrders, List<String> values, List<String> needOrders) {
+        List<String> rtnValues = new ArrayList<>();
+        for (String needOrder : needOrders) {
+            for (int var2 = 0; var2 < parentOrders.size(); ++var2) {
+                if (needOrder.equals(parentOrders.get(var2))) {
+                    rtnValues.add(values.get(var2));
+                }
+            }
+        }
+        return rtnValues;
     }
 }
