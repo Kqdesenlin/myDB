@@ -21,6 +21,7 @@ import com.domain.Entity.result.OperateResult;
 import com.domain.Entity.result.ResultCode;
 import com.domain.Entity.result.SelectResult;
 import com.domain.repository.TableConstant;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import org.apache.commons.beanutils.BeanUtils;
@@ -30,9 +31,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class DMLOperate {
 
     private CheckOperate checkOperate = new CheckOperate();
+
+    private IndexOperate indexOperate = new IndexOperate();
 
     public OperateResult select(SelectEntity selectEntity) {
         //获取表
@@ -46,7 +50,12 @@ public class DMLOperate {
         List<String> columnOrder = tempTableInfo.getRulesOrder();
         //expression解析
         if (null != selectEntity.getWhereExpression()) {
-            tempTableInfo = WhereOperate.where(tempTableInfo, selectEntity.getWhereExpression());
+            IndexInfo indexInfo = indexOperate.indexMatch(tempTableInfo,selectEntity.getWhereExpression());
+            if (null != indexInfo) {
+                tempTableInfo = indexOperate.searchByIndex(tempTableInfo,selectEntity.getWhereExpression(),indexInfo);
+            } else {
+                tempTableInfo = WhereOperate.where(tempTableInfo, selectEntity.getWhereExpression());
+            }
         }
 
         //select ...from 之间，对最后得到的值进行筛选
@@ -238,7 +247,7 @@ public class DMLOperate {
      * 当同时更新多个属性的时候，例如update table1 column1 = 1,column2 = column1
      * 此时，更新顺序从左到右，如果右边读取到了左边的属性，按照修改后的读取，
      * 如果左边读取到了右边更新的数据，按照表中原来的数据读取
-     * @param updateEntity
+     * @param updateEntity updateEnitty
      * @return
      */
     public OperateResult update(UpdateEntity updateEntity) {
@@ -305,6 +314,18 @@ public class DMLOperate {
                 List<String> oldValues = entry.getValue();
                 List<String> newValues = TypeConverUtils.
                         selectColumnValueFromGivenColumnInfo(parentColumnOrder, oldValues,columnOrder);
+                String tempString = String.join("",newValues);
+                if (null==indexInfo.getMax()||null==indexInfo.getMin()){
+                    indexInfo.setMax(tempString);
+                    indexInfo.setMin(tempString);
+                } else {
+                    if (indexInfo.getMax().compareTo(tempString)<0){
+                        indexInfo.setMax(tempString);
+                    }
+                    if (indexInfo.getMin().compareTo(tempString)>0){
+                        indexInfo.setMin(tempString);
+                    }
+                }
                 Entry<List<String>,Integer> newEntry = new Entry<>(newValues,oldKey);
                 tempBTree.addNode(newEntry);
             }

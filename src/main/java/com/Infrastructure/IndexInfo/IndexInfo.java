@@ -30,6 +30,11 @@ public class IndexInfo implements Cloneable{
 
     IndexTypeEnums indexType;
 
+    String min;
+
+    String max;
+
+
     public AtomicInteger primaryKey = new AtomicInteger(1);
 
     public IndexInfo() {}

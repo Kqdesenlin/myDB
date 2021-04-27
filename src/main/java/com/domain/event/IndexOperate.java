@@ -1,6 +1,8 @@
 package com.domain.event;
 
 import com.Infrastructure.IndexInfo.IndexInfo;
+import com.Infrastructure.IndexInfo.IndexValues;
+import com.Infrastructure.Service.TypeConverUtils;
 import com.Infrastructure.TableInfo.TableInfo;
 import com.Infrastructure.Visitor.IndexVisitor.IndexExpressionVisitorWithRtn;
 import com.domain.Entity.bTree.BTree;
@@ -13,9 +15,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * 索引思路，再次修改，索引只使用一个
+ * 因为多个索引的使用，本质上很难提高查询速度
+ * 例如，总行数为2000行，第一个索引条件，回表200行，而第二个索引条件，本质上
+ * 也只是回表200行，如果要使用两个索引，就需要对这200和200取交集，而
+ * 在不确定的情况下，取交集返回的行数不确定，同时，计算交集也需要很多时间
+ * 因此，在一般情况下，不考虑使用多个索引
  * @author: zhangQY
  * @date: 2021/4/25
  * @description:
+ *
  */
 public class IndexOperate {
 
@@ -23,23 +32,35 @@ public class IndexOperate {
      * 返回indexlist的集合
      * 如果为空，说明索引查找效率低于全表
      * 如果不为空，则使用对应的索引
-     * @param tableInfo
-     * @param expression
-     * @return
+     * @param tableInfo tableInfo
+     * @param expression expression
+     * @return indexInfo
      */
-    public List<String> indexMatch(TableInfo tableInfo, Expression expression) {
-        List<List<String>> indexAfterRule = indexMatchOnRule(tableInfo,expression);
+    public IndexInfo indexMatch(TableInfo tableInfo, Expression expression) {
+        List<List<IndexValues>> indexAfterRule = indexMatchOnRule(tableInfo,expression);
         if (null == indexAfterRule || indexAfterRule.isEmpty()) {
-            return new ArrayList<>();
+            return null;
         }
-        List<String> indexAfterCost = indexMatchOnCost(tableInfo,expression,indexAfterRule);
+        List<IndexValues> indexAfterCost = indexMatchOnCost(tableInfo,expression,indexAfterRule);
         if (null == indexAfterCost || indexAfterCost.isEmpty()) {
-            return new ArrayList<>();
+            return null;
         }
-        return null;
+        return indexAfterCost.get(0).getIndexInfo();
     }
 
     /**
+     * 2021/4/26 索引思路再次修改
+     * 之前将单一索引和组合索引的思路分开思考
+     * 现在将两个混合思考
+     * 组合索引，本质上视作 分集 例如 组合索引 id,custId,posId
+     * 看作三个索引 id,  (id,custId),(id,custId,posId)
+     * 而单一索引，例如 id,看作id
+     * 因此
+     * 在and or 这种二元判断的时候
+     * 首先，获取左边的索引，例如获取了一个id
+     * 这时候再获取右边，如果右边获取的索引，第一个是custId
+     * 将两个整合在一起，例如id,custId,这个在索引表中，则说明可以使用索引
+     * 如果是id,posId这种不在索引集中的，则只计算其中
      * 基于规则的索引分析
      * 1. 查询的字段需要有索引
      * 2. 索引在>,<,=,<=,>=,between,is null,like,
@@ -51,14 +72,13 @@ public class IndexOperate {
      * @param expression
      * @return
      */
-    public List<List<String>> indexMatchOnRule(TableInfo tableInfo, Expression expression) {
+    public List<List<IndexValues>> indexMatchOnRule(TableInfo tableInfo, Expression expression) {
         List<String> columnOrder = tableInfo.getRulesOrder();
         List<IndexInfo> indexInfoList = tableInfo.getIndexInfos();
         BTree<Integer,List<String>> bTree = tableInfo.getBTree();
         Iterator<Entry<Integer,List<String>>> iterator = bTree.iterator();
         if (null != expression && iterator.hasNext() && !indexInfoList.isEmpty()) {
-            List<String> indexNameList = indexInfoList.stream().map(IndexInfo::getIndexName).collect(Collectors.toList());
-            IndexExpressionVisitorWithRtn visitor = new IndexExpressionVisitorWithRtn(indexNameList);
+            IndexExpressionVisitorWithRtn visitor = new IndexExpressionVisitorWithRtn(indexInfoList);
             expression.accept(visitor);
             return visitor.getRtn();
         }
@@ -67,6 +87,7 @@ public class IndexOperate {
 
     /**
      * 基于成本的索引分析
+     *
      *
      * 根据给定的所有索引使用规则
      * 简单的索引存在的数量的思路
@@ -91,21 +112,64 @@ public class IndexOperate {
      * @param expression
      * @return
      */
-    public List<String> indexMatchOnCost(TableInfo tableInfo, Expression expression,List<List<String>> lists) {
+    public List<IndexValues> indexMatchOnCost(TableInfo tableInfo, Expression expression,List<List<IndexValues>> lists) {
         if (null == lists || lists.isEmpty()) {
             return new ArrayList<>();
         }
-        return null;
+        double totalNumber = 100;
+        double eachCalculate = 0.2;
+        double times = totalNumber * eachCalculate;
+        List<IndexValues> finalIndex = new ArrayList<>();
+        //计算所有索引
+        //1 2 3, 4, 5 6
+        //-> 1,12,123,4,5,56
+        for (IndexInfo indexInfo : tableInfo.getIndexInfos()) {
+
+            //1 2 3-> 1, 12, 123
+            List<String> tempIndexs = indexInfo.getRulesOrder();
+            List<String> tempString = new ArrayList<>();
+            List<List<String>> tableIndexLists = new ArrayList<>();
+            for (String s : tempIndexs) {
+                tempString.add(s);
+                List<String> temptemp = new ArrayList<>(tempString);
+                tableIndexLists.add(temptemp);
+            }
+            for (List<IndexValues> indexToCost : lists) {
+                List<String> tempIndexNameList = indexToCost.stream().map(IndexValues::getIndexName).collect(Collectors.toList());
+                indexToCost.forEach(indexValues -> {
+                    indexValues.setIndexInfo(indexInfo);
+                });
+                if (tableIndexLists.contains(tempIndexNameList)) {
+                    int rtnCount = 0;
+                    String cutLeftString = "";
+                    String cutRightString = "";
+                    for (IndexValues values : indexToCost) {
+                        cutLeftString = cutLeftString + (values.getKeyPoint().get(0));
+                        cutRightString = cutRightString + values.getKeyPoint().get(1);
+                    }
+                    String min = indexInfo.getMin();
+                    String max = indexInfo.getMax();
+                    double rate = TypeConverUtils.StringRate(cutLeftString, cutRightString, min, max);
+
+                    if (times > (rate * totalNumber * eachCalculate * 2)) {
+                        times = rate * totalNumber * eachCalculate * 2;
+                        finalIndex = indexToCost;
+                    }
+                }
+            }
+        }
+        return finalIndex;
     }
 
     /**
      * 通过索引查询
-     * @param tableInfo
-     * @param expression
-     * @param indexInfoList
-     * @return
+     * @param tableInfo tableInfo
+     * @param expression expression
+     * @param indexInfo index
+     * @return tableInfo
      */
-    public TableInfo searchByIndex(TableInfo tableInfo, Expression expression,List<IndexInfo> indexInfoList) {
-        return null;
+    public TableInfo searchByIndex(TableInfo tableInfo, Expression expression,IndexInfo indexInfo) {
+        List<Integer> pkList = WhereOperate.indexWhere(indexInfo,expression);
+        return WhereOperate.whereFiterPK(tableInfo,expression,pkList);
     }
 }

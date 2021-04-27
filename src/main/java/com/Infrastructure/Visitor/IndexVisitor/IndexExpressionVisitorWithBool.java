@@ -1,7 +1,6 @@
 package com.Infrastructure.Visitor.IndexVisitor;
-
-import com.Infrastructure.IndexInfo.IndexInfo;
-import com.Infrastructure.IndexInfo.IndexValues;
+import com.Infrastructure.IndexInfo.IndexColumnResult;
+import com.Infrastructure.TableInfo.ColumnValueInfo;
 import com.Infrastructure.Visitor.BinaryExpressionParser;
 import lombok.Data;
 import net.sf.jsqlparser.expression.*;
@@ -12,25 +11,50 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author: zhangQY
- * @date: 2021/4/25
+ * @date: 2021/3/25
  * @description:
  */
 @Data
-public class IndexExpressionVisitorWithRtn implements ExpressionVisitor {
+public class IndexExpressionVisitorWithBool implements ExpressionVisitor {
 
-    private List<IndexInfo> indexList;
+    private ColumnValueInfo columnValueInfo;
 
-    private List<List<IndexValues>> rtn;
+    private boolean ifPass;
 
-    public IndexExpressionVisitorWithRtn(List<IndexInfo> indexList) {
-        this.indexList = indexList;
-        this.rtn = new ArrayList<>();
+    public IndexExpressionVisitorWithBool(ColumnValueInfo columnValueInfo) {
+        this.columnValueInfo = columnValueInfo;
+        this.ifPass = true;
     }
+
+
+    //解析到是一个括号(插入语)
+    @Override
+    public void visit(Parenthesis parenthesis) {
+        parenthesis.getExpression().accept(this);
+    }
+
+
+    @Override
+    public void visit(EqualsTo equalsTo) {
+        List<String> leftAndRight = BinaryExpressionParser.parser(equalsTo,columnValueInfo);
+        String left = leftAndRight.get(0);
+        String right = leftAndRight.get(1);
+        if (left.equals(right)) {
+            this.ifPass = true;
+        } else {
+            this.ifPass = false;
+        }
+    }
+
+    @Override
+    public void visit(SubSelect subSelect) {
+
+    }
+
     @Override
     public void visit(BitwiseRightShift aThis) {
 
@@ -97,11 +121,6 @@ public class IndexExpressionVisitorWithRtn implements ExpressionVisitor {
     }
 
     @Override
-    public void visit(Parenthesis parenthesis) {
-        parenthesis.getExpression().accept(this);
-    }
-
-    @Override
     public void visit(StringValue stringValue) {
 
     }
@@ -133,12 +152,14 @@ public class IndexExpressionVisitorWithRtn implements ExpressionVisitor {
 
     @Override
     public void visit(AndExpression andExpression) {
-        this.rtn = BinaryExpressionParser.indexCombine(andExpression, this.indexList);
+        List<Boolean> booleanList = BinaryExpressionParser.binaryMarkJudge(andExpression,this.columnValueInfo);
+        this.ifPass = booleanList.get(0) && booleanList.get(1);
     }
 
     @Override
     public void visit(OrExpression orExpression) {
-        this.rtn = BinaryExpressionParser.indexCombine(orExpression,this.indexList);
+        List<Boolean> booleanList = BinaryExpressionParser.binaryMarkJudge(orExpression,this.columnValueInfo);
+        this.ifPass = booleanList.get(0) || booleanList.get(1);
     }
 
     @Override
@@ -146,25 +167,28 @@ public class IndexExpressionVisitorWithRtn implements ExpressionVisitor {
 
     }
 
-    /**
-     * = 条件
-     * 需求左右其中一个为index，另一个为常量，才能执行索引
-     * @param equalsTo
-     */
-    @Override
-    public void visit(EqualsTo equalsTo) {
-        this.rtn = BinaryExpressionParser.indexSearch(equalsTo,this.indexList);
-    }
-
     @Override
     public void visit(GreaterThan greaterThan) {
-        this.rtn = BinaryExpressionParser.indexSearch(greaterThan,this.indexList);
+        IndexColumnResult leftAndRightAndIndex = BinaryExpressionParser.indexParser(greaterThan,columnValueInfo);
+        if (leftAndRightAndIndex.isIfMark()) {
+            this.ifPass = true;
+            return;
+        }
+        String left = leftAndRightAndIndex.getLeft();
+        String right = leftAndRightAndIndex.getRight();
+        this.ifPass = left.compareTo(right) > 0;
     }
 
     @Override
     public void visit(GreaterThanEquals greaterThanEquals) {
-        this.rtn = BinaryExpressionParser.indexSearch(greaterThanEquals,this.indexList);
-
+        IndexColumnResult leftAndRightAndIndex = BinaryExpressionParser.indexParser(greaterThanEquals,columnValueInfo);
+        if (leftAndRightAndIndex.isIfMark()) {
+            this.ifPass = true;
+            return;
+        }
+        String left = leftAndRightAndIndex.getLeft();
+        String right = leftAndRightAndIndex.getRight();
+        this.ifPass = left.compareTo(right) >= 0;
     }
 
     @Override
@@ -194,26 +218,42 @@ public class IndexExpressionVisitorWithRtn implements ExpressionVisitor {
 
     @Override
     public void visit(MinorThan minorThan) {
-
+        IndexColumnResult leftAndRightAndIndex = BinaryExpressionParser.indexParser(minorThan,columnValueInfo);
+        if (leftAndRightAndIndex.isIfMark()) {
+            this.ifPass = true;
+            return;
+        }
+        String left = leftAndRightAndIndex.getLeft();
+        String right = leftAndRightAndIndex.getRight();
+        this.ifPass = left.compareTo(right) < 0;
     }
 
     @Override
     public void visit(MinorThanEquals minorThanEquals) {
-
+        IndexColumnResult leftAndRightAndIndex = BinaryExpressionParser.indexParser(minorThanEquals,columnValueInfo);
+        if (leftAndRightAndIndex.isIfMark()) {
+            this.ifPass = true;
+            return;
+        }
+        String left = leftAndRightAndIndex.getLeft();
+        String right = leftAndRightAndIndex.getRight();
+        this.ifPass = left.compareTo(right) <= 0;
     }
 
     @Override
     public void visit(NotEqualsTo notEqualsTo) {
-
+        IndexColumnResult leftAndRightAndIndex = BinaryExpressionParser.indexParser(notEqualsTo,columnValueInfo);
+        if (leftAndRightAndIndex.isIfMark()) {
+            this.ifPass = true;
+            return;
+        }
+        String left = leftAndRightAndIndex.getLeft();
+        String right = leftAndRightAndIndex.getRight();
+        this.ifPass = !left.equals(right);
     }
 
     @Override
     public void visit(Column tableColumn) {
-
-    }
-
-    @Override
-    public void visit(SubSelect subSelect) {
 
     }
 

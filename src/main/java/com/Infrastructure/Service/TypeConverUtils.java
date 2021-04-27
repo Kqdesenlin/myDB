@@ -1,5 +1,6 @@
 package com.Infrastructure.Service;
 
+import com.Infrastructure.IndexInfo.IndexValues;
 import com.alibaba.fastjson.JSONObject;
 import com.application.dto.SelectResultDto;
 import com.domain.Entity.InsertEntity;
@@ -107,15 +108,17 @@ public class TypeConverUtils {
         return rtnValues;
     }
 
-    public static List<List<String>> IndexListCombined(List<List<String>> leftIndexLists,List<List<String>> rightIndexLists) {
+    public static List<List<IndexValues>> IndexListCombined(List<List<IndexValues>> leftIndexLists, List<List<IndexValues>> rightIndexLists) {
         if (leftIndexLists.isEmpty()) {
             return rightIndexLists;
         }
-        List<List<String>> rtn = new ArrayList<>();
-        for (List<String> leftIndexList : leftIndexLists) {
+        List<List<IndexValues>> rtn = new ArrayList<>();
+        rtn.addAll(leftIndexLists);
+        rtn.addAll(rightIndexLists);
+        for (List<IndexValues> leftIndexList : leftIndexLists) {
             if (!rightIndexLists.isEmpty()) {
-                for (List<String> rightIndexList : rightIndexLists) {
-                    List<String> tempRtn = new ArrayList<>();
+                for (List<IndexValues> rightIndexList : rightIndexLists) {
+                    List<IndexValues> tempRtn = new ArrayList<>();
                     tempRtn.addAll(leftIndexList);
                     tempRtn.addAll(rightIndexList);
                     tempRtn = tempRtn.stream().distinct().collect(Collectors.toList());
@@ -124,6 +127,24 @@ public class TypeConverUtils {
             }
         }
         rtn = rtn.stream().distinct().collect(Collectors.toList());
+        return rtn;
+    }
+
+    public static double StringRate(String left,String right,String min,String max) {
+        long leftL = StringToLong(left);
+        long rightL = StringToLong(right);
+        long minL = StringToLong(min);
+        long maxL = StringToLong(max);
+        return (rightL-leftL)/(maxL-minL);
+    }
+
+    public static long StringToLong(String s) {
+        long chengji = 100000;
+        long rtn = 0;
+        for (char c:s.toCharArray()){
+            rtn += (long) c *chengji;
+            chengji *=0.1;
+        }
         return rtn;
     }
 

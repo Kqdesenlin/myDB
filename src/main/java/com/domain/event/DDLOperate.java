@@ -242,6 +242,18 @@ public class DDLOperate {
             List<String> oldValues = entry.getValue();
             List<String> newValues = TypeConverUtils.
                     selectColumnValueFromGivenColumnInfo(parentColumnOrder, oldValues,columnOrder);
+            String tempString = String.join("",newValues);
+            if (null==indexInfo.getMax()||null==indexInfo.getMin()){
+                indexInfo.setMax(tempString);
+                indexInfo.setMin(tempString);
+            } else {
+              if (indexInfo.getMax().compareTo(tempString)<0){
+                  indexInfo.setMax(tempString);
+              }
+              if (indexInfo.getMin().compareTo(tempString)>0){
+                  indexInfo.setMin(tempString);
+              }
+            }
             Entry<List<String>,Integer> newEntry = new Entry<>(newValues,oldKey);
             sonTree.addNode(newEntry);
         }
